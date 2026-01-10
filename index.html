@@ -1,0 +1,954 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DoTheBook — От знаний к действиям</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(ellipse at top, #1a1a2e 0%, #0f0f1e 50%, #000000 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #e0e0e0;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 20% 30%, rgba(138, 92, 246, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(59, 130, 246, 0.06) 0%, transparent 50%),
+                radial-gradient(circle at 50% 50%, rgba(236, 72, 153, 0.04) 0%, transparent 50%);
+            animation: cosmic-rotate 60s linear infinite;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        @keyframes cosmic-rotate {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-top: 60px;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        .logo {
+            font-size: 0.9rem;
+            font-weight: 600;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            margin-bottom: 40px;
+            color: #8a5cf6;
+            opacity: 0.9;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            line-height: 1.1;
+            letter-spacing: -2px;
+            background: linear-gradient(135deg, #ffffff 0%, #a78bfa 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: #b0b0c0;
+            font-weight: 400;
+            line-height: 1.6;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 32px;
+            padding: 50px;
+            margin-bottom: 40px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            animation: slideUp 0.6s ease-out;
+        }
+
+        .book-input-label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            text-align: center;
+        }
+
+        .book-input {
+            width: 100%;
+            padding: 20px 24px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            border-radius: 16px;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .book-input:focus {
+            outline: none;
+            border-color: #8a5cf6;
+            background: rgba(138, 92, 246, 0.05);
+            box-shadow: 0 0 0 4px rgba(138, 92, 246, 0.1);
+        }
+
+        .book-input::placeholder {
+            color: #666679;
+        }
+
+        .book-header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding-bottom: 30px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .book-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 15px;
+        }
+
+        .book-description {
+            font-size: 1.1rem;
+            color: #b0b0c0;
+            line-height: 1.6;
+        }
+
+        .section-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #a78bfa;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 20px;
+            margin-top: 40px;
+        }
+
+        .popular-queries {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .query-btn {
+            padding: 16px 20px;
+            background: rgba(138, 92, 246, 0.1);
+            border: 2px solid rgba(138, 92, 246, 0.3);
+            border-radius: 12px;
+            color: #e0e0e0;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-align: left;
+            font-family: inherit;
+        }
+
+        .query-btn:hover {
+            background: rgba(138, 92, 246, 0.2);
+            border-color: #8a5cf6;
+            transform: translateX(5px);
+        }
+
+        .query-btn.selected {
+            background: rgba(138, 92, 246, 0.3);
+            border-color: #8a5cf6;
+        }
+
+        .examples-section {
+            background: rgba(138, 92, 246, 0.05);
+            border: 1px solid rgba(138, 92, 246, 0.2);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            margin-bottom: 30px;
+        }
+
+        .example-item {
+            margin-bottom: 20px;
+        }
+
+        .example-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .example-name {
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 5px;
+        }
+
+        .example-quote {
+            color: #b0b0c0;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        .cta-text {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #8a5cf6;
+            margin-top: 20px;
+        }
+
+        .custom-input-section {
+            margin-top: 30px;
+        }
+
+        .custom-input {
+            width: 100%;
+            padding: 18px 22px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.02);
+            color: #ffffff;
+            font-size: 1rem;
+            font-family: inherit;
+            transition: all 0.3s;
+            border-radius: 16px;
+            min-height: 100px;
+            resize: vertical;
+        }
+
+        .custom-input:focus {
+            outline: none;
+            border-color: #8a5cf6;
+            background: rgba(138, 92, 246, 0.05);
+            box-shadow: 0 0 0 4px rgba(138, 92, 246, 0.1);
+        }
+
+        .custom-input::placeholder {
+            color: #666679;
+        }
+
+        .progress-container {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-steps {
+            max-width: 500px;
+            margin: 0 auto;
+        }
+
+        .progress-step {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 25px;
+            opacity: 0.3;
+            transition: all 0.5s;
+        }
+
+        .progress-step.active {
+            opacity: 1;
+        }
+
+        .progress-step.completed {
+            opacity: 0.6;
+        }
+
+        .progress-text {
+            flex: 1;
+            text-align: left;
+            font-size: 1rem;
+            color: #e0e0e0;
+        }
+
+        .progress-bar-wrapper {
+            flex: 0 0 150px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-left: 20px;
+        }
+
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #8a5cf6, #3b82f6);
+            width: 0%;
+            transition: width 0.5s ease;
+            border-radius: 10px;
+        }
+
+        .result {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-radius: 32px;
+            padding: 50px;
+            margin-top: 40px;
+            line-height: 1.8;
+            font-size: 1rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 30px;
+            border-bottom: 2px solid rgba(138, 92, 246, 0.3);
+        }
+
+        .result-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 10px;
+        }
+
+        .result-section {
+            margin-bottom: 40px;
+        }
+
+        .result-section-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #8a5cf6;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .idea-item {
+            background: rgba(138, 92, 246, 0.05);
+            border-left: 4px solid #8a5cf6;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-radius: 12px;
+            line-height: 1.7;
+        }
+
+        .idea-number {
+            font-weight: 700;
+            color: #a78bfa;
+            margin-right: 8px;
+        }
+
+        .action-item {
+            background: rgba(59, 130, 246, 0.05);
+            border: 2px solid rgba(59, 130, 246, 0.3);
+            padding: 25px;
+            margin-bottom: 20px;
+            border-radius: 16px;
+            transition: all 0.3s;
+        }
+
+        .action-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-color: #3b82f6;
+            transform: translateX(5px);
+        }
+
+        .action-title {
+            font-weight: 700;
+            color: #ffffff;
+            font-size: 1.1rem;
+            margin-bottom: 10px;
+        }
+
+        .action-description {
+            color: #b0b0c0;
+            line-height: 1.7;
+            margin-bottom: 10px;
+        }
+
+        .action-why {
+            color: #8a5cf6;
+            font-style: italic;
+            font-size: 0.95rem;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 15px;
+            margin-top: 40px;
+        }
+
+        .result-actions .btn {
+            flex: 1;
+        }
+
+        .analyzing-container {
+            display: none;
+            text-align: center;
+            padding: 60px 40px;
+        }
+
+        .analyzing-container.active {
+            display: block;
+        }
+
+        .analyzing-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(138, 92, 246, 0.2);
+            border-top-color: #8a5cf6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 30px;
+        }
+
+        .analyzing-text {
+            font-size: 1.2rem;
+            color: #a78bfa;
+            margin-bottom: 10px;
+        }
+
+        .analyzing-subtext {
+            font-size: 0.9rem;
+            color: #666679;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in-item {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.6s ease-out forwards;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 20px;
+            background: linear-gradient(135deg, #8a5cf6 0%, #3b82f6 100%);
+            color: #ffffff;
+            border: none;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            box-shadow: 0 4px 20px rgba(138, 92, 246, 0.3);
+            font-family: inherit;
+        }
+
+        .btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(138, 92, 246, 0.5);
+        }
+
+        .btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            margin-top: 15px;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .hero p {
+                font-size: 1.1rem;
+            }
+
+            .card {
+                padding: 30px 25px;
+            }
+
+            .book-title {
+                font-size: 1.5rem;
+            }
+        }
+
+        .footer {
+            text-align: center;
+            color: #666679;
+            padding: 40px 20px;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="hero">
+            <div class="logo">DoTheBook</div>
+            <h1>От знаний к действиям</h1>
+            <p>Превращаем любую книгу в конкретный план действий за 30 секунд</p>
+        </div>
+
+        <!-- Step 1: Book Input -->
+        <div id="step1" class="card">
+            <label class="book-input-label">Введите название книги</label>
+            <input 
+                type="text" 
+                id="bookInput"
+                class="book-input"
+                placeholder="Например: Атомные привычки"
+            >
+            <button id="analyzeBtn" class="btn">Анализировать книгу</button>
+        </div>
+
+        <!-- Step 2: Book Info + Context Selection -->
+        <div id="step2" class="card hidden">
+            <div class="book-header">
+                <div class="book-title" id="bookTitle"></div>
+                <div class="book-description" id="bookDescription"></div>
+            </div>
+
+            <div class="section-title">💬 Популярные запросы к этой книге:</div>
+            <div class="popular-queries" id="popularQueries"></div>
+
+            <div class="examples-section">
+                <div class="section-title" style="margin-top: 0;">👥 Кто уже применил:</div>
+                <div id="examples"></div>
+                <div class="cta-text">Твой черёд! 💪</div>
+            </div>
+
+            <div class="custom-input-section">
+                <div class="section-title">🖊 Или опишите свою ситуацию:</div>
+                <textarea 
+                    id="customContext"
+                    class="custom-input"
+                    placeholder="Опишите что хотите изменить или улучшить..."
+                ></textarea>
+            </div>
+
+            <button id="generateBtn" class="btn">Получить план действий</button>
+            <button id="backBtn" class="btn btn-secondary">← Выбрать другую книгу</button>
+        </div>
+
+        <!-- Analyzing Animation -->
+        <div id="analyzingSection" class="card analyzing-container">
+            <div class="analyzing-spinner"></div>
+            <div class="analyzing-text">Анализирую книгу...</div>
+            <div class="analyzing-subtext">Это займёт несколько секунд</div>
+        </div>
+
+        <!-- Progress Bar -->
+        <div id="progressSection" class="card progress-container">
+            <div class="progress-steps">
+                <div class="progress-step" id="step-analyze">
+                    <div class="progress-text">🔍 Анализирую книгу...</div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-fill" id="bar-analyze"></div>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-ideas">
+                    <div class="progress-text">💡 Извлекаю главные идеи...</div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-fill" id="bar-ideas"></div>
+                    </div>
+                </div>
+                <div class="progress-step" id="step-plan">
+                    <div class="progress-text">🎯 Создаю план под тебя...</div>
+                    <div class="progress-bar-wrapper">
+                        <div class="progress-bar-fill" id="bar-plan"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="resultSection" class="result hidden"></div>
+
+        <div class="footer">
+            DOTHEBOOK 2025
+        </div>
+    </div>
+
+    <script>
+        const API_ENDPOINT = '/api/generate-plan';
+        const ANALYZE_ENDPOINT = '/api/analyze-book';
+        
+        let currentBook = '';
+        let selectedContext = '';
+
+        // Step 1: Analyze book
+        document.getElementById('analyzeBtn').addEventListener('click', async () => {
+            const bookInput = document.getElementById('bookInput').value.trim();
+            
+            if (!bookInput) {
+                alert('Пожалуйста, введите название книги');
+                return;
+            }
+
+            try {
+                currentBook = bookInput;
+                
+                // Show analyzing animation
+                document.getElementById('step1').classList.add('hidden');
+                document.getElementById('analyzingSection').classList.add('active');
+                
+                await showBookInfo(bookInput);
+                
+                // Hide analyzing, show step 2
+                document.getElementById('analyzingSection').classList.remove('active');
+                document.getElementById('step2').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error analyzing book:', error);
+                alert('Ошибка при анализе книги. Попробуйте ещё раз.');
+                
+                // Return to step 1
+                document.getElementById('analyzingSection').classList.remove('active');
+                document.getElementById('step1').classList.remove('hidden');
+            }
+        });
+
+        // Show book info
+        async function showBookInfo(bookTitle) {
+            document.getElementById('bookTitle').textContent = `📚 ${bookTitle}`;
+
+            // Call AI to analyze the book
+            const bookInfo = await getBookInfo(bookTitle);
+            
+            document.getElementById('bookDescription').textContent = bookInfo.description;
+
+            const queriesContainer = document.getElementById('popularQueries');
+            queriesContainer.innerHTML = '';
+            bookInfo.popularQueries.forEach(query => {
+                const btn = document.createElement('button');
+                btn.className = 'query-btn';
+                btn.textContent = `• ${query}`;
+                btn.onclick = () => selectQuery(btn, query);
+                queriesContainer.appendChild(btn);
+            });
+
+            const examplesContainer = document.getElementById('examples');
+            examplesContainer.innerHTML = '';
+            bookInfo.examples.forEach(example => {
+                const div = document.createElement('div');
+                div.className = 'example-item';
+                div.innerHTML = `
+                    <div class="example-name">${example.name}:</div>
+                    <div class="example-quote">"${example.quote}"</div>
+                `;
+                examplesContainer.appendChild(div);
+            });
+        }
+
+        // Real AI analysis (replaces mock data)
+        async function getBookInfo(bookTitle) {
+            const response = await fetch(ANALYZE_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ bookTitle })
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to analyze book');
+            }
+
+            return await response.json();
+        }
+
+        // Select query
+        function selectQuery(btn, query) {
+            document.querySelectorAll('.query-btn').forEach(b => {
+                b.classList.remove('selected');
+            });
+            
+            btn.classList.add('selected');
+            selectedContext = query;
+            
+            document.getElementById('customContext').value = '';
+        }
+
+        // Back button
+        document.getElementById('backBtn').addEventListener('click', () => {
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('bookInput').value = '';
+            selectedContext = '';
+        });
+
+        // Generate plan
+        document.getElementById('generateBtn').addEventListener('click', async () => {
+            const customContext = document.getElementById('customContext').value.trim();
+            const context = customContext || selectedContext;
+
+            if (!context) {
+                alert('Пожалуйста, выберите запрос или опишите свою ситуацию');
+                return;
+            }
+
+            document.getElementById('step2').classList.add('hidden');
+            document.getElementById('progressSection').classList.add('active');
+
+            await showProgress();
+
+            const plan = await generatePlan(currentBook, context);
+
+            document.getElementById('progressSection').classList.remove('active');
+            showResult(plan);
+        });
+
+        // Progress animation
+        async function showProgress() {
+            const steps = [
+                { id: 'step-analyze', bar: 'bar-analyze', duration: 1000 },
+                { id: 'step-ideas', bar: 'bar-ideas', duration: 1500 },
+                { id: 'step-plan', bar: 'bar-plan', duration: 2000 }
+            ];
+
+            for (const step of steps) {
+                document.getElementById(step.id).classList.add('active');
+                await animateBar(step.bar, step.duration);
+                document.getElementById(step.id).classList.remove('active');
+                document.getElementById(step.id).classList.add('completed');
+            }
+        }
+
+        function animateBar(barId, duration) {
+            return new Promise(resolve => {
+                const bar = document.getElementById(barId);
+                bar.style.width = '0%';
+                setTimeout(() => {
+                    bar.style.width = '100%';
+                }, 50);
+                setTimeout(resolve, duration);
+            });
+        }
+
+        // Generate plan via API
+        async function generatePlan(bookTitle, userContext) {
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    bookTitle,
+                    userContext
+                })
+            });
+
+            if (!response.ok) {
+                throw new Error('Ошибка генерации плана');
+            }
+
+            const data = await response.json();
+            return data.plan;
+        }
+
+        // Show result with beautiful structured layout
+        function showResult(content) {
+            const resultSection = document.getElementById('resultSection');
+            resultSection.classList.remove('hidden');
+            
+            // Parse the content
+            const lines = content.split('\n');
+            let html = '';
+            
+            // Extract book title and author
+            const titleLine = lines[0];
+            html += `<div class="result-header fade-in-item">`;
+            html += `<div class="result-title">${titleLine}</div>`;
+            html += `</div>`;
+            
+            let inIdeas = false;
+            let inActions = false;
+            let currentAction = null;
+            let delay = 1;
+            
+            lines.forEach((line, index) => {
+                if (index === 0) return; // Skip title
+                
+                const trimmed = line.trim();
+                
+                // Section headers
+                if (trimmed.includes('ГЛАВНЫЕ ИДЕИ')) {
+                    inIdeas = true;
+                    inActions = false;
+                    html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+                    html += `<div class="result-section-title">💡 Главные идеи книги</div>`;
+                    delay++;
+                    return;
+                }
+                
+                if (trimmed.includes('КОНКРЕТНЫЕ ДЕЙСТВИЯ')) {
+                    if (inIdeas) html += `</div>`; // Close ideas section
+                    inIdeas = false;
+                    inActions = true;
+                    html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+                    html += `<div class="result-section-title">🎯 Конкретные действия</div>`;
+                    delay++;
+                    return;
+                }
+                
+                // Skip separator lines
+                if (trimmed.startsWith('━') || trimmed === '') return;
+                
+                // Parse ideas (numbered list)
+                if (inIdeas && /^\d+\./.test(trimmed)) {
+                    const ideaText = trimmed.replace(/^\d+\.\s*/, '');
+                    const ideaNum = trimmed.match(/^(\d+)\./)[1];
+                    html += `<div class="idea-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+                    html += `<span class="idea-number">${ideaNum}.</span>${ideaText}`;
+                    html += `</div>`;
+                    delay++;
+                }
+                
+                // Parse actions
+                if (inActions) {
+                    if (trimmed.startsWith('Действие')) {
+                        // Close previous action if exists
+                        if (currentAction) {
+                            html += `</div>`;
+                        }
+                        
+                        // Start new action
+                        html += `<div class="action-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+                        html += `<div class="action-title">${trimmed}</div>`;
+                        currentAction = { title: trimmed, description: '', why: '' };
+                        delay++;
+                    } else if (trimmed.startsWith('Зачем:')) {
+                        const why = trimmed.replace('Зачем:', '').trim();
+                        html += `<div class="action-why">💡 ${why}</div>`;
+                    } else if (trimmed && !trimmed.startsWith('━')) {
+                        html += `<div class="action-description">${trimmed}</div>`;
+                    }
+                }
+            });
+            
+            // Close last action if exists
+            if (currentAction) html += `</div>`;
+            
+            // Close sections
+            if (inActions) html += `</div>`;
+            
+            // Add navigation buttons
+            html += `<div class="result-actions fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+            html += `<button onclick="tryAnotherBook()" class="btn btn-secondary">📚 Попробовать другую книгу</button>`;
+            html += `<button onclick="createNewPlan()" class="btn">🎯 Новый план для этой книги</button>`;
+            html += `</div>`;
+            
+            resultSection.innerHTML = html;
+            
+            // Scroll to result
+            setTimeout(() => {
+                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+        
+        // Navigation functions
+        function tryAnotherBook() {
+            // Reset everything and go to step 1
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('bookInput').value = '';
+            document.getElementById('step1').classList.remove('hidden');
+            selectedContext = '';
+            currentBook = '';
+        }
+        
+        function createNewPlan() {
+            // Go back to step 2 with same book
+            document.getElementById('resultSection').classList.add('hidden');
+            document.getElementById('step2').classList.remove('hidden');
+            document.getElementById('customContext').value = '';
+            
+            // Deselect all queries
+            document.querySelectorAll('.query-btn').forEach(btn => {
+                btn.classList.remove('selected');
+            });
+            selectedContext = '';
+        }
+
+        // Double-click for testing
+        document.getElementById('bookInput').addEventListener('dblclick', () => {
+            document.getElementById('bookInput').value = 'Атомные привычки';
+        });
+    </script>
+</body>
+</html>
