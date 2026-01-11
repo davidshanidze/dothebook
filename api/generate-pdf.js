@@ -36,10 +36,11 @@ export default async function handler(req, res) {
     // ВАЖНО: Регистрируем fontkit для поддержки кастомных шрифтов
     pdfDoc.registerFontkit(fontkit);
     
-    // Загружаем шрифты Roboto с поддержкой кириллицы
-    const fontRegularUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf';
-    const fontBoldUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4.ttf';
-    const fontItalicUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzI.ttf';
+    // Загружаем шрифты Roboto в формате TTF (не WOFF2!)
+    // Используем GitHub репозиторий с TTF файлами
+    const fontRegularUrl = 'https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Regular.ttf';
+    const fontBoldUrl = 'https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Bold.ttf';
+    const fontItalicUrl = 'https://github.com/google/fonts/raw/main/apache/roboto/static/Roboto-Italic.ttf';
     
     const [fontRegularBytes, fontBoldBytes, fontItalicBytes] = await Promise.all([
       fetch(fontRegularUrl).then(r => r.arrayBuffer()),
