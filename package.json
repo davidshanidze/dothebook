@@ -4,6 +4,7 @@
   "description": "AI-powered book to action plan generator",
   "type": "module",
   "dependencies": {
-    "pdfkit": "^0.15.0"
+    "pdf-lib": "^1.17.1",
+    "node-fetch": "^3.3.2"
   }
 }
