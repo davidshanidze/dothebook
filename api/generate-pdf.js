@@ -1,7 +1,8 @@
 // Vercel Function для генерации PDF с поддержкой кириллицы
-// Использует PDFKit
+// Использует pdf-lib + Roboto font
 
-import PDFDocument from 'pdfkit';
+import { PDFDocument, rgb } from 'pdf-lib';
+import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
   // CORS headers
@@ -29,36 +30,100 @@ export default async function handler(req, res) {
     }
 
     // Создаём PDF документ
-    const doc = new PDFDocument({
-      size: 'A4',
-      margins: { top: 50, bottom: 50, left: 50, right: 50 }
-    });
+    const pdfDoc = await PDFDocument.create();
+    
+    // Загружаем шрифты Roboto с поддержкой кириллицы
+    const fontRegularUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf';
+    const fontBoldUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOlCnqEu92Fr1MmWUlfBBc4.ttf';
+    const fontItalicUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOkCnqEu92Fr1Mu51xIIzI.ttf';
+    
+    const [fontRegularBytes, fontBoldBytes, fontItalicBytes] = await Promise.all([
+      fetch(fontRegularUrl).then(r => r.arrayBuffer()),
+      fetch(fontBoldUrl).then(r => r.arrayBuffer()),
+      fetch(fontItalicUrl).then(r => r.arrayBuffer())
+    ]);
+    
+    const font = await pdfDoc.embedFont(fontRegularBytes);
+    const fontBold = await pdfDoc.embedFont(fontBoldBytes);
+    const fontItalic = await pdfDoc.embedFont(fontItalicBytes);
 
-    // Настраиваем headers для скачивания
-    res.setHeader('Content-Type', 'application/pdf');
-    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(bookTitle)} - План действий.pdf"`);
+    // Создаём первую страницу
+    let page = pdfDoc.addPage([595, 842]); // A4 size
+    const { width, height } = page.getSize();
+    const margin = 50;
+    let y = height - margin;
 
-    // Направляем PDF в response
-    doc.pipe(res);
+    // Helper function to add text with word wrap
+    const addText = (text, size, textFont, color = rgb(0, 0, 0)) => {
+      const maxWidth = width - (margin * 2);
+      
+      // Simple word wrap
+      const words = text.split(' ');
+      let line = '';
+      
+      words.forEach((word, index) => {
+        const testLine = line + word + ' ';
+        const testWidth = textFont.widthOfTextAtSize(testLine, size);
+        
+        if (testWidth > maxWidth && line !== '') {
+          // Check if need new page
+          if (y < margin + size) {
+            page = pdfDoc.addPage([595, 842]);
+            y = height - margin;
+          }
+          
+          // Draw current line
+          page.drawText(line.trim(), {
+            x: margin,
+            y: y,
+            size: size,
+            font: textFont,
+            color: color
+          });
+          
+          y -= size + 4;
+          line = word + ' ';
+        } else {
+          line = testLine;
+        }
+      });
+      
+      // Draw last line
+      if (line.trim() !== '') {
+        if (y < margin + size) {
+          page = pdfDoc.addPage([595, 842]);
+          y = height - margin;
+        }
+        
+        page.drawText(line.trim(), {
+          x: margin,
+          y: y,
+          size: size,
+          font: textFont,
+          color: color
+        });
+        
+        y -= size + 4;
+      }
+      
+      y -= 6; // Extra spacing between blocks
+    };
 
     // Парсим контент
     const lines = content.split('\n');
-    let firstLine = true;
 
     lines.forEach((line, index) => {
       const trimmed = line.trim();
 
       if (!trimmed) {
-        doc.moveDown(0.5);
+        y -= 8;
         return;
       }
 
       // Заголовок (первая строка)
       if (index === 0) {
-        doc.fontSize(18)
-           .font('Helvetica-Bold')
-           .text(trimmed, { align: 'left' });
-        doc.moveDown(1);
+        addText(trimmed, 18, fontBold);
+        y -= 10;
         return;
       }
 
@@ -69,46 +134,36 @@ export default async function handler(req, res) {
 
       // Секции
       if (trimmed.includes('ГЛАВНЫЕ ИДЕИ') || trimmed.includes('КОНКРЕТНЫЕ ДЕЙСТВИЯ')) {
-        doc.moveDown(0.5);
-        doc.fontSize(14)
-           .font('Helvetica-Bold')
-           .fillColor('#8a5cf6')
-           .text(trimmed, { align: 'left' });
-        doc.fillColor('#000000');
-        doc.moveDown(0.5);
+        y -= 8;
+        addText(trimmed, 14, fontBold, rgb(0.54, 0.36, 0.96));
+        y -= 2;
         return;
       }
 
       // Действия
       if (trimmed.startsWith('Действие')) {
-        doc.moveDown(0.5);
-        doc.fontSize(12)
-           .font('Helvetica-Bold')
-           .text(trimmed, { align: 'left' });
-        doc.moveDown(0.3);
+        y -= 6;
+        addText(trimmed, 12, fontBold);
         return;
       }
 
       // "Зачем"
       if (trimmed.startsWith('Зачем:')) {
-        doc.fontSize(10)
-           .font('Helvetica-Oblique')
-           .fillColor('#666666')
-           .text(trimmed, { align: 'left' });
-        doc.fillColor('#000000');
-        doc.moveDown(0.3);
+        addText(trimmed, 10, fontItalic, rgb(0.4, 0.4, 0.4));
         return;
       }
 
       // Обычный текст
-      doc.fontSize(10)
-         .font('Helvetica')
-         .text(trimmed, { align: 'left' });
-      doc.moveDown(0.2);
+      addText(trimmed, 10, font);
     });
 
-    // Завершаем документ
-    doc.end();
+    // Сохраняем PDF
+    const pdfBytes = await pdfDoc.save();
+
+    // Отправляем PDF
+    res.setHeader('Content-Type', 'application/pdf');
+    res.setHeader('Content-Disposition', `attachment; filename="${encodeURIComponent(bookTitle)} - План действий.pdf"`);
+    res.send(Buffer.from(pdfBytes));
 
   } catch (error) {
     console.error('PDF generation error:', error);
