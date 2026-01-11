@@ -908,11 +908,15 @@
         async function downloadPDF() {
             if (!window.currentPlanContent) return;
             
+            // Find the PDF button
+            const pdfButton = document.querySelector('button[onclick="downloadPDF()"]');
+            
             try {
                 // Show loading state
-                const originalText = event.target.textContent;
-                event.target.textContent = '⏳ Генерация PDF...';
-                event.target.disabled = true;
+                if (pdfButton) {
+                    pdfButton.textContent = '⏳ Генерация PDF...';
+                    pdfButton.disabled = true;
+                }
                 
                 // Call server to generate PDF
                 const response = await fetch('/api/generate-pdf', {
@@ -942,14 +946,19 @@
                 URL.revokeObjectURL(url);
                 
                 // Restore button
-                event.target.textContent = originalText;
-                event.target.disabled = false;
+                if (pdfButton) {
+                    pdfButton.textContent = '📥 Скачать PDF';
+                    pdfButton.disabled = false;
+                }
                 
             } catch (error) {
                 console.error('PDF download error:', error);
                 alert('Ошибка при скачивании PDF. Попробуйте ещё раз.');
-                event.target.textContent = '📥 Скачать PDF';
-                event.target.disabled = false;
+                
+                if (pdfButton) {
+                    pdfButton.textContent = '📥 Скачать PDF';
+                    pdfButton.disabled = false;
+                }
             }
         }
         
