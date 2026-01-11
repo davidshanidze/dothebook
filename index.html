@@ -16,9 +16,6 @@
     
     <!-- Vercel Analytics -->
     <script defer src="/_vercel/insights/script.js"></script>
-    
-    <!-- jsPDF for PDF generation -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -908,100 +905,52 @@
         }
         
         // Download PDF function
-        function downloadPDF() {
+        async function downloadPDF() {
             if (!window.currentPlanContent) return;
             
-            // Wait for jsPDF to load
-            if (typeof window.jspdf === 'undefined') {
-                alert('PDF библиотека загружается... Попробуйте через секунду');
-                return;
-            }
-            
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            // Configure font and spacing
-            const pageWidth = doc.internal.pageSize.getWidth();
-            const pageHeight = doc.internal.pageSize.getHeight();
-            const margin = 20;
-            const maxWidth = pageWidth - (margin * 2);
-            let y = margin;
-            
-            // Helper function to add text with wrapping
-            function addText(text, fontSize = 10, isBold = false) {
-                doc.setFontSize(fontSize);
-                if (isBold) {
-                    doc.setFont(undefined, 'bold');
-                } else {
-                    doc.setFont(undefined, 'normal');
-                }
+            try {
+                // Show loading state
+                const originalText = event.target.textContent;
+                event.target.textContent = '⏳ Генерация PDF...';
+                event.target.disabled = true;
                 
-                const lines = doc.splitTextToSize(text, maxWidth);
-                
-                lines.forEach(line => {
-                    // Check if we need a new page
-                    if (y + fontSize / 2 > pageHeight - margin) {
-                        doc.addPage();
-                        y = margin;
-                    }
-                    
-                    doc.text(line, margin, y);
-                    y += fontSize / 2 + 2;
+                // Call server to generate PDF
+                const response = await fetch('/api/generate-pdf', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: window.currentPlanContent,
+                        bookTitle: currentBook
+                    })
                 });
                 
-                y += 3; // Add spacing after text block
+                if (!response.ok) {
+                    throw new Error('Ошибка генерации PDF');
+                }
+                
+                // Download PDF
+                const blob = await response.blob();
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `${currentBook} - План действий.pdf`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                URL.revokeObjectURL(url);
+                
+                // Restore button
+                event.target.textContent = originalText;
+                event.target.disabled = false;
+                
+            } catch (error) {
+                console.error('PDF download error:', error);
+                alert('Ошибка при скачивании PDF. Попробуйте ещё раз.');
+                event.target.textContent = '📥 Скачать PDF';
+                event.target.disabled = false;
             }
-            
-            // Parse content
-            const lines = window.currentPlanContent.split('\n');
-            
-            lines.forEach((line, index) => {
-                const trimmed = line.trim();
-                
-                if (!trimmed) {
-                    y += 3; // Empty line spacing
-                    return;
-                }
-                
-                // Title (first line)
-                if (index === 0) {
-                    addText(trimmed, 16, true);
-                    y += 5;
-                    return;
-                }
-                
-                // Section headers
-                if (trimmed.includes('ГЛАВНЫЕ ИДЕИ') || trimmed.includes('КОНКРЕТНЫЕ ДЕЙСТВИЯ')) {
-                    y += 5;
-                    addText(trimmed, 14, true);
-                    return;
-                }
-                
-                // Skip separator lines
-                if (trimmed.startsWith('━')) {
-                    return;
-                }
-                
-                // Action titles
-                if (trimmed.startsWith('Действие')) {
-                    y += 3;
-                    addText(trimmed, 12, true);
-                    return;
-                }
-                
-                // "Зачем" lines
-                if (trimmed.startsWith('Зачем:')) {
-                    addText(trimmed, 10, false);
-                    return;
-                }
-                
-                // Regular text
-                addText(trimmed, 10, false);
-            });
-            
-            // Save PDF
-            const fileName = `${currentBook} - План действий.pdf`;
-            doc.save(fileName);
         }
         
         // Navigation functions
