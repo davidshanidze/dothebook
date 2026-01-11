@@ -1,7 +1,8 @@
 // Vercel Function для генерации PDF с поддержкой кириллицы
-// Использует pdf-lib + Roboto font
+// Использует pdf-lib + fontkit + Roboto font
 
 import { PDFDocument, rgb } from 'pdf-lib';
+import fontkit from '@pdf-lib/fontkit';
 import fetch from 'node-fetch';
 
 export default async function handler(req, res) {
@@ -31,6 +32,9 @@ export default async function handler(req, res) {
 
     // Создаём PDF документ
     const pdfDoc = await PDFDocument.create();
+    
+    // ВАЖНО: Регистрируем fontkit для поддержки кастомных шрифтов
+    pdfDoc.registerFontkit(fontkit);
     
     // Загружаем шрифты Roboto с поддержкой кириллицы
     const fontRegularUrl = 'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Mu4mxK.ttf';
