@@ -888,7 +888,7 @@
             
             // Add navigation buttons
             html += `<div class="result-actions fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-            html += `<button onclick="downloadPDF()" class="btn">📥 Скачать PDF</button>`;
+            html += `<button onclick="downloadTXT()" class="btn">📥 Скачать TXT</button>`;
             html += `<button onclick="tryAnotherBook()" class="btn btn-secondary">📚 Другая книга</button>`;
             html += `<button onclick="createNewPlan()" class="btn btn-secondary">🎯 Новый план</button>`;
             html += `</div>`;
@@ -904,61 +904,28 @@
             }, 300);
         }
         
-        // Download PDF function
-        async function downloadPDF() {
+        // Download TXT function
+        function downloadTXT() {
             if (!window.currentPlanContent) return;
             
-            // Find the PDF button
-            const pdfButton = document.querySelector('button[onclick="downloadPDF()"]');
-            
             try {
-                // Show loading state
-                if (pdfButton) {
-                    pdfButton.textContent = '⏳ Генерация PDF...';
-                    pdfButton.disabled = true;
-                }
-                
-                // Call server to generate PDF
-                const response = await fetch('/api/generate-pdf', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        content: window.currentPlanContent,
-                        bookTitle: currentBook
-                    })
+                // Create TXT file
+                const blob = new Blob([window.currentPlanContent], { 
+                    type: 'text/plain;charset=utf-8' 
                 });
                 
-                if (!response.ok) {
-                    throw new Error('Ошибка генерации PDF');
-                }
-                
-                // Download PDF
-                const blob = await response.blob();
                 const url = URL.createObjectURL(blob);
                 const link = document.createElement('a');
                 link.href = url;
-                link.download = `${currentBook} - План действий.pdf`;
+                link.download = `${currentBook} - План действий.txt`;
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
                 URL.revokeObjectURL(url);
                 
-                // Restore button
-                if (pdfButton) {
-                    pdfButton.textContent = '📥 Скачать PDF';
-                    pdfButton.disabled = false;
-                }
-                
             } catch (error) {
-                console.error('PDF download error:', error);
-                alert('Ошибка при скачивании PDF. Попробуйте ещё раз.');
-                
-                if (pdfButton) {
-                    pdfButton.textContent = '📥 Скачать PDF';
-                    pdfButton.disabled = false;
-                }
+                console.error('TXT download error:', error);
+                alert('Ошибка при скачивании файла. Попробуйте ещё раз.');
             }
         }
         
