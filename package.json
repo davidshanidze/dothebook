@@ -1,11 +1,5 @@
 {
   "name": "dothebook",
   "version": "1.0.0",
-  "description": "AI-powered book to action plan generator",
-  "type": "module",
-  "dependencies": {
-    "pdf-lib": "^1.17.1",
-    "@pdf-lib/fontkit": "^1.1.1",
-    "node-fetch": "^3.3.2"
-  }
+  "description": "AI-powered book to action plan generator"
 }
