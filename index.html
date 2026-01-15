@@ -917,12 +917,84 @@
             }
         }
 
-        // Get fallback recommendations (more diverse)
+        // Get fallback recommendations (more diverse and specific)
         function getFallbackRecommendations(query) {
             const lowerQuery = query.toLowerCase();
             
+            // Sports & Fitness specific
+            if (lowerQuery.includes('футбол') || lowerQuery.includes('спорт') || lowerQuery.includes('бег') || lowerQuery.includes('тренир')) {
+                return [
+                    {
+                        title: "Бегущий по лезвию бритвы",
+                        author: "Олег Табаков",
+                        reason: "Практическое руководство по бегу от чемпиона. Техника, тренировки, питание для начинающих и опытных.",
+                        relevance: 92
+                    },
+                    {
+                        title: "Тело на всю жизнь",
+                        author: "Адам Кэмпбелл",
+                        reason: "Научный подход к тренировкам. Программы для разных целей - от похудения до набора массы.",
+                        relevance: 88
+                    },
+                    {
+                        title: "Книга о теле",
+                        author: "Билл Брайсон",
+                        reason: "Увлекательно о том как работает тело во время физической активности. Понимание механики движения.",
+                        relevance: 85
+                    }
+                ];
+            }
+            
+            // Independence & Self-reliance
+            if (lowerQuery.includes('зависе') || lowerQuery.includes('мнени') || lowerQuery.includes('пофиг') || lowerQuery.includes('собой')) {
+                return [
+                    {
+                        title: "Тонкое искусство пофигизма",
+                        author: "Марк Мэнсон",
+                        reason: "Честно про то как перестать заботиться о чужом мнении. Контринтуитивный подход к счастливой жизни.",
+                        relevance: 94
+                    },
+                    {
+                        title: "Быть собой",
+                        author: "Ошо",
+                        reason: "Философия аутентичности. Как жить своей жизнью не оглядываясь на общественные ожидания.",
+                        relevance: 90
+                    },
+                    {
+                        title: "Смелость быть несовершенным",
+                        author: "Брене Браун",
+                        reason: "О принятии себя и свободе от чужих оценок. Исследования уязвимости как источника силы.",
+                        relevance: 87
+                    }
+                ];
+            }
+            
+            // Cooking & Culinary
+            if (lowerQuery.includes('готов') || lowerQuery.includes('кулинар') || lowerQuery.includes('еда') || lowerQuery.includes('рецепт')) {
+                return [
+                    {
+                        title: "Книга о вкусной и здоровой пище",
+                        author: "Коллектив авторов",
+                        reason: "Классическое руководство по кулинарии. Базовые техники и рецепты для начинающих.",
+                        relevance: 91
+                    },
+                    {
+                        title: "Кулинарная школа",
+                        author: "Альтон Браун",
+                        reason: "Научный подход к готовке. Понимание процессов позволяет импровизировать на кухне.",
+                        relevance: 88
+                    },
+                    {
+                        title: "Salt, Fat, Acid, Heat",
+                        author: "Самин Носрат",
+                        reason: "4 элемента хорошей кухни. Универсальная система которая работает для любого блюда.",
+                        relevance: 85
+                    }
+                ];
+            }
+            
             // Productivity & Procrastination
-            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва') || lowerQuery.includes('продуктивн')) {
+            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва') || lowerQuery.includes('продуктивн') || lowerQuery.includes('лень')) {
                 return [
                     {
                         title: "Atomic Habits",
@@ -970,31 +1042,31 @@
             }
             
             // Relationships & Communication
-            if (lowerQuery.includes('отношени') || lowerQuery.includes('общени') || lowerQuery.includes('люд')) {
+            if (lowerQuery.includes('отношени') || lowerQuery.includes('общени') || lowerQuery.includes('партнер') || lowerQuery.includes('любов')) {
                 return [
-                    {
-                        title: "Как завоевывать друзей",
-                        author: "Дейл Карнеги",
-                        reason: "Классика про общение. Учит искренне интересоваться людьми и строить настоящие связи.",
-                        relevance: 93
-                    },
                     {
                         title: "Пять языков любви",
                         author: "Гэри Чепмен",
-                        reason: "Помогает понять как люди выражают и принимают любовь по-разному. Улучшает близкие отношения.",
-                        relevance: 91
+                        reason: "Помогает понять как люди выражают и принимают любовь по-разному. Практические инструменты для улучшения близких отношений.",
+                        relevance: 93
                     },
                     {
-                        title: "Не кормите обезьяну",
-                        author: "Аллан и Барбара Пиз",
-                        reason: "Практическое руководство по решению конфликтов. Учит управлять эмоциями в сложных разговорах.",
+                        title: "Искусство любить",
+                        author: "Эрих Фромм",
+                        reason: "Классика о любви как навыке. Любовь - это не падение, а выбор и практика.",
+                        relevance: 90
+                    },
+                    {
+                        title: "Как завоевывать друзей",
+                        author: "Дейл Карнеги",
+                        reason: "Вечные принципы общения. Учит искренне интересоваться людьми и строить настоящие связи.",
                         relevance: 86
                     }
                 ];
             }
             
             // Confidence & Self-esteem
-            if (lowerQuery.includes('уверен') || lowerQuery.includes('самооценк') || lowerQuery.includes('страх')) {
+            if (lowerQuery.includes('уверен') || lowerQuery.includes('самооценк') || lowerQuery.includes('страх') || lowerQuery.includes('тревож')) {
                 return [
                     {
                         title: "Как перестать беспокоиться",
@@ -1018,7 +1090,7 @@
             }
             
             // Health & Wellness
-            if (lowerQuery.includes('здоров') || lowerQuery.includes('сон') || lowerQuery.includes('спорт') || lowerQuery.includes('питан')) {
+            if (lowerQuery.includes('здоров') || lowerQuery.includes('сон') || lowerQuery.includes('питан') || lowerQuery.includes('вес')) {
                 return [
                     {
                         title: "Зачем мы спим",
@@ -1041,18 +1113,36 @@
                 ];
             }
             
-            // Default - Universal books
+            // Career & Leadership
+            if (lowerQuery.includes('карьер') || lowerQuery.includes('работ') || lowerQuery.includes('лидер') || lowerQuery.includes('управлен')) {
+                return [
+                    {
+                        title: "От хорошего к великому",
+                        author: "Джим Коллинз",
+                        reason: "Исследование компаний-лидеров. Принципы которые работают на всех уровнях карьеры.",
+                        relevance: 91
+                    },
+                    {
+                        title: "Экстремальное владение",
+                        author: "Джоко Виллинк",
+                        reason: "Лидерство от Navy SEALs. Принятие полной ответственности как основа успеха.",
+                        relevance: 88
+                    },
+                    {
+                        title: "Лидер и племя",
+                        author: "Дэвид Логан",
+                        reason: "5 уровней корпоративной культуры. Как развивать команду и подниматься по карьерной лестнице.",
+                        relevance: 85
+                    }
+                ];
+            }
+            
+            // Default - Universal books (only if nothing else matches)
             return [
-                {
-                    title: "Атомные привычки",
-                    author: "Джеймс Клир",
-                    reason: "Универсальный подход к изменениям. Подходит для любой цели через формирование правильных систем и привычек.",
-                    relevance: 85
-                },
                 {
                     title: "Думай медленно... Решай быстро",
                     author: "Даниэль Канеман",
-                    reason: "Помогает понять как работает мышление. Учит избегать когнитивных ошибок в принятии решений.",
+                    reason: "Помогает понять как работает мышление. Учит избегать когнитивных ошибок в принятии решений. Универсально полезно.",
                     relevance: 82
                 },
                 {
@@ -1060,6 +1150,12 @@
                     author: "Михай Чиксентмихайи",
                     reason: "О состоянии максимальной продуктивности и счастья. Как находить flow в любой деятельности.",
                     relevance: 80
+                },
+                {
+                    title: "Атомные привычки",
+                    author: "Джеймс Клир",
+                    reason: "Универсальный подход к изменениям. Подходит когда непонятно с чего начать работу над целью.",
+                    relevance: 78
                 }
             ];
         }
