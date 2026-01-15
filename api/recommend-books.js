@@ -21,7 +21,10 @@ export default async function handler(req, res) {
   try {
     const { query } = req.body;
 
+    console.log('📥 Received query:', query);
+
     if (!query) {
+      console.error('❌ No query provided');
       return res.status(400).json({ error: 'Query is required' });
     }
 
@@ -70,6 +73,8 @@ export default async function handler(req, res) {
   }
 ]`;
 
+    console.log('🤖 Calling Groq API...');
+
     const completion = await groq.chat.completions.create({
       messages: [
         {
@@ -87,6 +92,7 @@ export default async function handler(req, res) {
     });
 
     const responseText = completion.choices[0]?.message?.content || '';
+    console.log('🤖 AI raw response:', responseText);
     
     // Clean response (remove markdown if present)
     let cleanedResponse = responseText.trim();
@@ -96,14 +102,20 @@ export default async function handler(req, res) {
       cleanedResponse = cleanedResponse.replace(/```\n?/g, '');
     }
 
+    console.log('🧹 Cleaned response:', cleanedResponse);
+
     // Parse JSON
     const recommendations = JSON.parse(cleanedResponse);
 
+    console.log('✅ Parsed recommendations:', recommendations);
+
     // Validate structure
     if (!Array.isArray(recommendations) || recommendations.length === 0) {
+      console.error('❌ Invalid recommendations format');
       throw new Error('Invalid recommendations format');
     }
 
+    console.log('✅ Returning', recommendations.length, 'recommendations');
     return res.status(200).json(recommendations);
 
   } catch (error) {
