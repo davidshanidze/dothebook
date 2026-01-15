@@ -917,15 +917,151 @@
             }
         }
 
-        // Get fallback recommendations
+        // Get fallback recommendations (more diverse)
         function getFallbackRecommendations(query) {
             const lowerQuery = query.toLowerCase();
             
-            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва')) {
-                return fallbackRecommendations.прокрастинация;
+            // Productivity & Procrastination
+            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва') || lowerQuery.includes('продуктивн')) {
+                return [
+                    {
+                        title: "Atomic Habits",
+                        author: "Джеймс Клир",
+                        reason: "Системный подход к борьбе с прокрастинацией через микропривычки. Учит создавать окружение которое само подталкивает к действиям.",
+                        relevance: 95
+                    },
+                    {
+                        title: "Eat That Frog",
+                        author: "Брайан Трейси",
+                        reason: "21 конкретная техника для победы над откладыванием. Метод 'съешь лягушку' - начинай с самого сложного.",
+                        relevance: 92
+                    },
+                    {
+                        title: "Сила воли",
+                        author: "Келли Макгонигал",
+                        reason: "Научные основы самоконтроля. Объясняет почему мы откладываем и как тренировать силу воли как мышцу.",
+                        relevance: 88
+                    }
+                ];
             }
             
-            return fallbackRecommendations.default;
+            // Money & Finance
+            if (lowerQuery.includes('деньг') || lowerQuery.includes('финанс') || lowerQuery.includes('богат') || lowerQuery.includes('инвест')) {
+                return [
+                    {
+                        title: "Богатый папа, бедный папа",
+                        author: "Роберт Кийосаки",
+                        reason: "Меняет мышление о деньгах с 'работать за деньги' на 'деньги работают на тебя'. Учит различать активы и пассивы.",
+                        relevance: 94
+                    },
+                    {
+                        title: "Самый богатый человек в Вавилоне",
+                        author: "Джордж Клейсон",
+                        reason: "Вечные принципы управления деньгами через притчи. Правило 10% на сбережения и разумные инвестиции.",
+                        relevance: 90
+                    },
+                    {
+                        title: "Психология денег",
+                        author: "Морган Хаузел",
+                        reason: "Объясняет почему финансовые решения - это не математика а психология. Учит правильному отношению к деньгам.",
+                        relevance: 87
+                    }
+                ];
+            }
+            
+            // Relationships & Communication
+            if (lowerQuery.includes('отношени') || lowerQuery.includes('общени') || lowerQuery.includes('люд')) {
+                return [
+                    {
+                        title: "Как завоевывать друзей",
+                        author: "Дейл Карнеги",
+                        reason: "Классика про общение. Учит искренне интересоваться людьми и строить настоящие связи.",
+                        relevance: 93
+                    },
+                    {
+                        title: "Пять языков любви",
+                        author: "Гэри Чепмен",
+                        reason: "Помогает понять как люди выражают и принимают любовь по-разному. Улучшает близкие отношения.",
+                        relevance: 91
+                    },
+                    {
+                        title: "Не кормите обезьяну",
+                        author: "Аллан и Барбара Пиз",
+                        reason: "Практическое руководство по решению конфликтов. Учит управлять эмоциями в сложных разговорах.",
+                        relevance: 86
+                    }
+                ];
+            }
+            
+            // Confidence & Self-esteem
+            if (lowerQuery.includes('уверен') || lowerQuery.includes('самооценк') || lowerQuery.includes('страх')) {
+                return [
+                    {
+                        title: "Как перестать беспокоиться",
+                        author: "Дейл Карнеги",
+                        reason: "Проверенные методы борьбы с тревожностью и страхами. Учит жить здесь и сейчас.",
+                        relevance: 92
+                    },
+                    {
+                        title: "Дары несовершенства",
+                        author: "Брене Браун",
+                        reason: "О принятии себя и уязвимости как источнике силы. Помогает строить аутентичную уверенность.",
+                        relevance: 89
+                    },
+                    {
+                        title: "Психология харизмы",
+                        author: "Оливия Фокс Кабейн",
+                        reason: "Конкретные техники развития харизмы и присутствия. Харизма - это навык который можно тренировать.",
+                        relevance: 85
+                    }
+                ];
+            }
+            
+            // Health & Wellness
+            if (lowerQuery.includes('здоров') || lowerQuery.includes('сон') || lowerQuery.includes('спорт') || lowerQuery.includes('питан')) {
+                return [
+                    {
+                        title: "Зачем мы спим",
+                        author: "Мэттью Уокер",
+                        reason: "Революционное исследование о сне. Показывает как сон влияет на здоровье, память и продуктивность.",
+                        relevance: 94
+                    },
+                    {
+                        title: "Кишка всему голова",
+                        author: "Джулия Эндерс",
+                        reason: "Увлекательно о том как кишечник управляет настроением и здоровьем. Практические советы по питанию.",
+                        relevance: 88
+                    },
+                    {
+                        title: "Быть в форме",
+                        author: "Бен Гринфилд",
+                        reason: "Научный подход к фитнесу и здоровью. Оптимизация тела и мозга на основе биохакинга.",
+                        relevance: 85
+                    }
+                ];
+            }
+            
+            // Default - Universal books
+            return [
+                {
+                    title: "Атомные привычки",
+                    author: "Джеймс Клир",
+                    reason: "Универсальный подход к изменениям. Подходит для любой цели через формирование правильных систем и привычек.",
+                    relevance: 85
+                },
+                {
+                    title: "Думай медленно... Решай быстро",
+                    author: "Даниэль Канеман",
+                    reason: "Помогает понять как работает мышление. Учит избегать когнитивных ошибок в принятии решений.",
+                    relevance: 82
+                },
+                {
+                    title: "Поток",
+                    author: "Михай Чиксентмихайи",
+                    reason: "О состоянии максимальной продуктивности и счастья. Как находить flow в любой деятельности.",
+                    relevance: 80
+                }
+            ];
         }
 
         // Show search results
