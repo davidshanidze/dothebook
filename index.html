@@ -897,6 +897,9 @@
 
         // Get book recommendations from AI
         async function getBookRecommendations(query) {
+            console.log('🔍 Getting recommendations for:', query);
+            console.log('📡 API endpoint:', RECOMMEND_ENDPOINT);
+            
             try {
                 const response = await fetch(RECOMMEND_ENDPOINT, {
                     method: 'POST',
@@ -906,12 +909,21 @@
                     body: JSON.stringify({ query })
                 });
 
+                console.log('📥 Response status:', response.status);
+                console.log('📥 Response ok:', response.ok);
+
                 if (!response.ok) {
+                    const errorText = await response.text();
+                    console.error('❌ API error response:', errorText);
                     throw new Error('Failed to get recommendations');
                 }
 
-                return await response.json();
+                const data = await response.json();
+                console.log('✅ AI recommendations received:', data);
+                return data;
             } catch (error) {
+                console.error('❌ Error in getBookRecommendations:', error);
+                console.log('⚠️ Using fallback recommendations instead');
                 // Return fallback on error
                 return getFallbackRecommendations(query);
             }
