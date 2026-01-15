@@ -146,6 +146,153 @@
             color: #666679;
         }
 
+        .divider {
+            display: flex;
+            align-items: center;
+            margin: 40px 0;
+            gap: 20px;
+        }
+
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: rgba(138, 92, 246, 0.2);
+        }
+
+        .divider-text {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            font-weight: 400;
+        }
+
+        .search-section {
+            margin-top: 30px;
+        }
+
+        .search-header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        .search-title {
+            font-size: 1rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.6);
+            margin-bottom: 8px;
+        }
+
+        .search-subtitle {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .book-search-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .search-results-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 12px;
+            letter-spacing: -1px;
+        }
+
+        .search-results-subtitle {
+            font-size: 1rem;
+            color: #b0b0c0;
+        }
+
+        .book-cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .book-card {
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 28px;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+
+        .book-card:hover {
+            border-color: #8a5cf6;
+            background: rgba(138, 92, 246, 0.08);
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(138, 92, 246, 0.3);
+        }
+
+        .book-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .book-card-info {
+            flex: 1;
+        }
+
+        .book-card-title {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 6px;
+            letter-spacing: -0.5px;
+        }
+
+        .book-card-author {
+            font-size: 0.95rem;
+            color: #a78bfa;
+            font-weight: 500;
+        }
+
+        .relevance-badge {
+            background: rgba(138, 92, 246, 0.15);
+            border: 1px solid rgba(138, 92, 246, 0.3);
+            padding: 6px 12px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #a78bfa;
+            white-space: nowrap;
+        }
+
+        .book-card-reason {
+            font-size: 1rem;
+            color: #b0b0c0;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .book-select-btn {
+            background: rgba(138, 92, 246, 0.1);
+            border: 1px solid rgba(138, 92, 246, 0.3);
+            padding: 12px 24px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #a78bfa;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+            text-transform: none;
+            letter-spacing: 0.5px;
+            font-family: inherit;
+        }
+
+        .book-select-btn:hover {
+            background: rgba(138, 92, 246, 0.2);
+            border-color: #8a5cf6;
+            color: #fff;
+        }
+
         .book-header {
             text-align: center;
             margin-bottom: 30px;
@@ -565,6 +712,38 @@
                 placeholder="Например: Атомные привычки"
             >
             <button id="analyzeBtn" class="btn">Анализировать книгу</button>
+
+            <div class="divider">
+                <div class="divider-line"></div>
+                <div class="divider-text">или</div>
+                <div class="divider-line"></div>
+            </div>
+
+            <div class="search-section">
+                <div class="search-header">
+                    <div class="search-title">Не знаете, что выбрать?</div>
+                    <div class="search-subtitle">Какая цель? (навык, привычка, проблема)</div>
+                </div>
+                <input 
+                    type="text" 
+                    id="goalInput"
+                    class="book-input"
+                    placeholder="Хочу перестать откладывать дела"
+                >
+                <button id="findBookBtn" class="btn">Найти книгу</button>
+            </div>
+        </div>
+
+        <!-- Book Search Results -->
+        <div id="searchResults" class="card hidden">
+            <div class="book-search-header">
+                <div class="search-results-title"></div>
+                <div class="search-results-subtitle"></div>
+            </div>
+
+            <div class="book-cards-container"></div>
+
+            <button id="backToSearchBtn" class="btn btn-secondary">← Другой запрос</button>
         </div>
 
         <!-- Step 2: Book Info + Context Selection -->
@@ -633,9 +812,192 @@
     <script>
         const API_ENDPOINT = '/api/generate-plan';
         const ANALYZE_ENDPOINT = '/api/analyze-book';
+        const RECOMMEND_ENDPOINT = '/api/recommend-books';
         
         let currentBook = '';
         let selectedContext = '';
+
+        // Book search examples (will be replaced by AI)
+        const fallbackRecommendations = {
+            "прокрастинация": [
+                {
+                    title: "Атомные привычки",
+                    author: "Джеймс Клир",
+                    reason: "Помогает строить системы вместо целей. Показывает как маленькие изменения приводят к большим результатам через накопительный эффект.",
+                    relevance: 95
+                },
+                {
+                    title: "Eat That Frog",
+                    author: "Брайан Трейси",
+                    reason: "21 конкретная техника для победы над прокрастинацией. Учит начинать день с самой сложной задачи.",
+                    relevance: 92
+                },
+                {
+                    title: "Сила воли",
+                    author: "Келли Макгонигал",
+                    reason: "Объясняет научные основы силы воли и даёт практические упражнения для её развития.",
+                    relevance: 88
+                }
+            ],
+            "default": [
+                {
+                    title: "Атомные привычки",
+                    author: "Джеймс Клир",
+                    reason: "Универсальная книга про изменения. Подходит для любой цели - от фитнеса до карьеры.",
+                    relevance: 90
+                },
+                {
+                    title: "Психология влияния",
+                    author: "Роберт Чалдини",
+                    reason: "Помогает понимать людей и влиять на них. Полезно для любой сферы жизни.",
+                    relevance: 85
+                },
+                {
+                    title: "Гибкое сознание",
+                    author: "Кэрол Дуэк",
+                    reason: "Про growth mindset. Учит воспринимать неудачи как возможности для роста.",
+                    relevance: 83
+                }
+            ]
+        };
+
+        // Find books button
+        document.getElementById('findBookBtn').addEventListener('click', async () => {
+            const goalInput = document.getElementById('goalInput').value.trim();
+            
+            if (!goalInput) {
+                alert('Пожалуйста, опишите вашу цель');
+                return;
+            }
+
+            try {
+                // Hide step 1
+                document.getElementById('step1').classList.add('hidden');
+                
+                // Show analyzing animation
+                document.getElementById('analyzingSection').classList.add('active');
+
+                // Get book recommendations
+                const recommendations = await getBookRecommendations(goalInput);
+
+                // Hide analyzing
+                document.getElementById('analyzingSection').classList.remove('active');
+
+                // Show search results
+                showSearchResults(recommendations, goalInput);
+            } catch (error) {
+                console.error('Error finding books:', error);
+                
+                // Use fallback recommendations
+                document.getElementById('analyzingSection').classList.remove('active');
+                const fallback = getFallbackRecommendations(goalInput);
+                showSearchResults(fallback, goalInput);
+            }
+        });
+
+        // Get book recommendations from AI
+        async function getBookRecommendations(query) {
+            try {
+                const response = await fetch(RECOMMEND_ENDPOINT, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ query })
+                });
+
+                if (!response.ok) {
+                    throw new Error('Failed to get recommendations');
+                }
+
+                return await response.json();
+            } catch (error) {
+                // Return fallback on error
+                return getFallbackRecommendations(query);
+            }
+        }
+
+        // Get fallback recommendations
+        function getFallbackRecommendations(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва')) {
+                return fallbackRecommendations.прокрастинация;
+            }
+            
+            return fallbackRecommendations.default;
+        }
+
+        // Show search results
+        function showSearchResults(books, query) {
+            const searchResults = document.getElementById('searchResults');
+            
+            // Update header
+            document.querySelector('.search-results-title').textContent = 'Нашли книги для вас';
+            document.querySelector('.search-results-subtitle').textContent = `На основе вашего запроса: "${query}"`;
+
+            // Create book cards
+            const container = document.querySelector('.book-cards-container');
+            container.innerHTML = books.map(book => `
+                <div class="book-card" onclick="selectBookFromSearch('${book.title.replace(/'/g, "\\'")}')">
+                    <div class="book-card-header">
+                        <div class="book-card-info">
+                            <div class="book-card-title">${book.title}</div>
+                            <div class="book-card-author">${book.author}</div>
+                        </div>
+                        <div class="relevance-badge">${book.relevance}%</div>
+                    </div>
+                    <div class="book-card-reason">${book.reason}</div>
+                    <button class="book-select-btn" onclick="event.stopPropagation(); selectBookFromSearch('${book.title.replace(/'/g, "\\'")}')">
+                        Выбрать эту книгу →
+                    </button>
+                </div>
+            `).join('');
+
+            // Show results
+            searchResults.classList.remove('hidden');
+        }
+
+        // Select book from search
+        async function selectBookFromSearch(bookTitle) {
+            currentBook = bookTitle;
+
+            try {
+                // Hide search results
+                document.getElementById('searchResults').classList.add('hidden');
+                
+                // Show analyzing animation
+                document.getElementById('analyzingSection').classList.add('active');
+                
+                // Analyze the selected book
+                await showBookInfo(bookTitle);
+                
+                // Hide analyzing, show step 2
+                document.getElementById('analyzingSection').classList.remove('active');
+                document.getElementById('step2').classList.remove('hidden');
+            } catch (error) {
+                console.error('Error analyzing book:', error);
+                alert('Ошибка при анализе книги. Попробуйте ещё раз.');
+                
+                // Return to search results
+                document.getElementById('analyzingSection').classList.remove('active');
+                document.getElementById('searchResults').classList.remove('hidden');
+            }
+        }
+
+        // Back to search button
+        document.getElementById('backToSearchBtn').addEventListener('click', () => {
+            document.getElementById('searchResults').classList.add('hidden');
+            document.getElementById('step1').classList.remove('hidden');
+            document.getElementById('goalInput').value = '';
+        });
+
+        // Enter key support
+        document.getElementById('goalInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                document.getElementById('findBookBtn').click();
+            }
+        });
 
         // Step 1: Analyze book
         document.getElementById('analyzeBtn').addEventListener('click', async () => {
