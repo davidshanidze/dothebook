@@ -1,5 +1,9 @@
 {
   "name": "dothebook",
   "version": "1.0.0",
-  "description": "AI-powered book to action plan generator"
+  "type": "module",
+  "description": "AI-powered book to action plan generator",
+  "dependencies": {
+    "groq-sdk": "^0.3.0"
+  }
 }
