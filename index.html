@@ -692,14 +692,68 @@
             font-size: 0.85rem;
             letter-spacing: 1px;
         }
+
+        .language-switcher {
+            position: absolute;
+            top: 30px;
+            right: 30px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            z-index: 100;
+        }
+
+        .lang-btn {
+            background: transparent;
+            border: none;
+            color: rgba(255,255,255,0.5);
+            font-size: 0.9rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            padding: 8px 12px;
+            border-radius: 8px;
+            font-family: inherit;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .lang-btn:hover {
+            color: rgba(255,255,255,0.8);
+            background: rgba(255,255,255,0.05);
+        }
+
+        .lang-btn.active {
+            color: #a78bfa;
+            background: rgba(138, 92, 246, 0.15);
+        }
+
+        .lang-separator {
+            color: rgba(255,255,255,0.2);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 768px) {
+            .language-switcher {
+                top: 20px;
+                right: 20px;
+            }
+        }
     </style>
 </head>
 <body>
     <div class="container">
+        <!-- Language Switcher -->
+        <div class="language-switcher">
+            <button class="lang-btn" data-lang="en" id="langEn">EN</button>
+            <span class="lang-separator">|</span>
+            <button class="lang-btn" data-lang="ru" id="langRu">RU</button>
+        </div>
+
         <div class="hero">
             <div class="logo">DoTheBook</div>
-            <h1>От знаний к действиям</h1>
-            <p>Превращаем любую книгу в конкретный план действий за 30 секунд</p>
+            <h1 id="heroTitle">From Knowledge to Action</h1>
+            <p id="heroSubtitle">Transform any book into a concrete action plan in 30 seconds</p>
         </div>
 
         <!-- Step 1: Book Input -->
@@ -810,6 +864,118 @@
     </div>
 
     <script>
+        // Translations
+        const translations = {
+            en: {
+                heroTitle: "From Knowledge to Action",
+                heroSubtitle: "Transform any book into a concrete action plan in 30 seconds",
+                bookInputLabel: "Enter book title",
+                bookInputPlaceholder: "For example: Atomic Habits",
+                analyzeBtn: "Analyze Book",
+                dividerOr: "or",
+                searchTitle: "Don't know what to choose?",
+                searchSubtitle: "What's your goal? (skill, habit, problem)",
+                goalInputPlaceholder: "I want to stop procrastinating",
+                findBookBtn: "Find Book",
+                analyzingText: "Analyzing book...",
+                analyzingSubtext: "This will take a few seconds",
+                loadingText: "Finding perfect books for you...",
+                resultsTitle: "Found books for you",
+                resultsSubtitle: "Based on your query:",
+                selectBookBtn: "Choose this book →",
+                backBtn: "← Another query",
+                backToBookBtn: "← Choose another book",
+                generatePlanBtn: "Get Action Plan",
+                popularQueriesTitle: "Choose one of popular queries:",
+                customContextTitle: "Or describe your situation:",
+                customContextPlaceholder: "Describe what you want to change or improve...",
+                progressAnalyze: "🔍 Analyzing the book...",
+                progressIdeas: "💡 Extracting key ideas...",
+                progressPlan: "🎯 Creating your plan...",
+                downloadBtn: "📥 Download TXT",
+                anotherBookBtn: "📚 Another book",
+                newPlanBtn: "🎯 New plan",
+                footer: "DOTHEBOOK 2026"
+            },
+            ru: {
+                heroTitle: "От знаний к действиям",
+                heroSubtitle: "Превращаем любую книгу в конкретный план действий за 30 секунд",
+                bookInputLabel: "Введите название книги",
+                bookInputPlaceholder: "Например: Атомные привычки",
+                analyzeBtn: "Анализировать книгу",
+                dividerOr: "или",
+                searchTitle: "Не знаете, что выбрать?",
+                searchSubtitle: "Какая цель? (навык, привычка, проблема)",
+                goalInputPlaceholder: "Хочу перестать откладывать дела",
+                findBookBtn: "Найти книгу",
+                analyzingText: "Анализирую книгу...",
+                analyzingSubtext: "Это займёт несколько секунд",
+                loadingText: "Ищем идеальные книги для вас...",
+                resultsTitle: "Нашли книги для вас",
+                resultsSubtitle: "На основе вашего запроса:",
+                selectBookBtn: "Выбрать эту книгу →",
+                backBtn: "← Другой запрос",
+                backToBookBtn: "← Выбрать другую книгу",
+                generatePlanBtn: "Получить план действий",
+                popularQueriesTitle: "Выберите один из популярных запросов:",
+                customContextTitle: "Или опишите свою ситуацию:",
+                customContextPlaceholder: "Опишите что хотите изменить или улучшить...",
+                progressAnalyze: "🔍 Анализирую книгу...",
+                progressIdeas: "💡 Извлекаю главные идеи...",
+                progressPlan: "🎯 Создаю план под тебя...",
+                downloadBtn: "📥 Скачать TXT",
+                anotherBookBtn: "📚 Другая книга",
+                newPlanBtn: "🎯 Новый план",
+                footer: "DOTHEBOOK 2026"
+            }
+        };
+
+        // Get saved language or default to English
+        let currentLang = localStorage.getItem('dothebook-lang') || 'en';
+
+        // Apply translations
+        function applyTranslations(lang) {
+            currentLang = lang;
+            localStorage.setItem('dothebook-lang', lang);
+
+            const t = translations[lang];
+
+            // Update UI elements
+            document.getElementById('heroTitle').textContent = t.heroTitle;
+            document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
+            document.querySelector('.book-input-label').textContent = t.bookInputLabel;
+            document.getElementById('bookInput').placeholder = t.bookInputPlaceholder;
+            document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
+            document.querySelector('.divider-text').textContent = t.dividerOr;
+            document.querySelector('.search-title').textContent = t.searchTitle;
+            document.querySelector('.search-subtitle').textContent = t.searchSubtitle;
+            document.getElementById('goalInput').placeholder = t.goalInputPlaceholder;
+            document.getElementById('findBookBtn').textContent = t.findBookBtn;
+            document.querySelector('.analyzing-text').textContent = t.analyzingText;
+            document.querySelector('.analyzing-subtext').textContent = t.analyzingSubtext;
+            document.querySelector('.loading-text').textContent = t.loadingText;
+            document.getElementById('backToSearchBtn').textContent = t.backBtn;
+            document.querySelector('.footer').textContent = t.footer;
+
+            // Update active state
+            document.querySelectorAll('.lang-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.lang === lang);
+            });
+
+            // Update step 2 elements if they exist
+            const generateBtn = document.getElementById('generateBtn');
+            const backBtn = document.getElementById('backBtn');
+            if (generateBtn) generateBtn.textContent = t.generatePlanBtn;
+            if (backBtn) backBtn.textContent = t.backToBookBtn;
+        }
+
+        // Language switcher event listeners
+        document.getElementById('langEn').addEventListener('click', () => applyTranslations('en'));
+        document.getElementById('langRu').addEventListener('click', () => applyTranslations('ru'));
+
+        // Apply initial language
+        applyTranslations(currentLang);
+
         const API_ENDPOINT = '/api/generate-plan';
         const ANALYZE_ENDPOINT = '/api/analyze-book';
         const RECOMMEND_ENDPOINT = '/api/recommend-books';
@@ -866,7 +1032,8 @@
             const goalInput = document.getElementById('goalInput').value.trim();
             
             if (!goalInput) {
-                alert('Пожалуйста, опишите вашу цель');
+                const msg = currentLang === 'en' ? 'Please describe your goal' : 'Пожалуйста, опишите вашу цель';
+                alert(msg);
                 return;
             }
 
@@ -899,6 +1066,7 @@
         async function getBookRecommendations(query) {
             console.log('🔍 Getting recommendations for:', query);
             console.log('📡 API endpoint:', RECOMMEND_ENDPOINT);
+            console.log('🌍 Language:', currentLang);
             
             try {
                 const response = await fetch(RECOMMEND_ENDPOINT, {
@@ -906,7 +1074,10 @@
                     headers: {
                         'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({ query })
+                    body: JSON.stringify({ 
+                        query,
+                        language: currentLang 
+                    })
                 });
 
                 console.log('📥 Response status:', response.status);
@@ -933,9 +1104,13 @@
         function getFallbackRecommendations(query) {
             const lowerQuery = query.toLowerCase();
             
+            // Determine language
+            const isRussian = currentLang === 'ru';
+            
             // Sports & Fitness specific
-            if (lowerQuery.includes('футбол') || lowerQuery.includes('спорт') || lowerQuery.includes('бег') || lowerQuery.includes('тренир')) {
-                return [
+            if (lowerQuery.includes('футбол') || lowerQuery.includes('спорт') || lowerQuery.includes('бег') || lowerQuery.includes('тренир') ||
+                lowerQuery.includes('football') || lowerQuery.includes('soccer') || lowerQuery.includes('sport') || lowerQuery.includes('running') || lowerQuery.includes('training')) {
+                return isRussian ? [
                     {
                         title: "Бегущий по лезвию бритвы",
                         author: "Олег Табаков",
@@ -954,12 +1129,32 @@
                         reason: "Увлекательно о том как работает тело во время физической активности. Понимание механики движения.",
                         relevance: 85
                     }
+                ] : [
+                    {
+                        title: "Born to Run",
+                        author: "Christopher McDougall",
+                        reason: "Inspiring story about running and endurance. Learn natural running techniques from the world's best distance runners.",
+                        relevance: 92
+                    },
+                    {
+                        title: "The Sports Gene",
+                        author: "David Epstein",
+                        reason: "Scientific approach to athletic performance. Understand how genetics and training work together.",
+                        relevance: 88
+                    },
+                    {
+                        title: "Body by Science",
+                        author: "John Little",
+                        reason: "Evidence-based fitness training. Efficient workout programs backed by scientific research.",
+                        relevance: 85
+                    }
                 ];
             }
             
             // Independence & Self-reliance
-            if (lowerQuery.includes('зависе') || lowerQuery.includes('мнени') || lowerQuery.includes('пофиг') || lowerQuery.includes('собой')) {
-                return [
+            if (lowerQuery.includes('зависе') || lowerQuery.includes('мнени') || lowerQuery.includes('пофиг') || lowerQuery.includes('собой') ||
+                lowerQuery.includes('opinion') || lowerQuery.includes('independent') || lowerQuery.includes('confidence') || lowerQuery.includes('yourself')) {
+                return isRussian ? [
                     {
                         title: "Тонкое искусство пофигизма",
                         author: "Марк Мэнсон",
@@ -978,38 +1173,34 @@
                         reason: "О принятии себя и свободе от чужих оценок. Исследования уязвимости как источника силы.",
                         relevance: 87
                     }
-                ];
-            }
-            
-            // Cooking & Culinary
-            if (lowerQuery.includes('готов') || lowerQuery.includes('кулинар') || lowerQuery.includes('еда') || lowerQuery.includes('рецепт')) {
-                return [
+                ] : [
                     {
-                        title: "Книга о вкусной и здоровой пище",
-                        author: "Коллектив авторов",
-                        reason: "Классическое руководство по кулинарии. Базовые техники и рецепты для начинающих.",
-                        relevance: 91
+                        title: "The Subtle Art of Not Giving a F*ck",
+                        author: "Mark Manson",
+                        reason: "Counterintuitive approach to living a good life. Learn to stop caring about others' opinions and focus on what truly matters.",
+                        relevance: 94
                     },
                     {
-                        title: "Кулинарная школа",
-                        author: "Альтон Браун",
-                        reason: "Научный подход к готовке. Понимание процессов позволяет импровизировать на кухне.",
-                        relevance: 88
+                        title: "Daring Greatly",
+                        author: "Brené Brown",
+                        reason: "About vulnerability and authenticity. Freedom from external judgments through self-acceptance.",
+                        relevance: 90
                     },
                     {
-                        title: "Salt, Fat, Acid, Heat",
-                        author: "Самин Носрат",
-                        reason: "4 элемента хорошей кухни. Универсальная система которая работает для любого блюда.",
-                        relevance: 85
+                        title: "The Courage to Be Disliked",
+                        author: "Ichiro Kishimi",
+                        reason: "Japanese philosophy on freedom from others' expectations. Live your life authentically.",
+                        relevance: 87
                     }
                 ];
             }
             
             // Productivity & Procrastination
-            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва') || lowerQuery.includes('продуктивн') || lowerQuery.includes('лень')) {
-                return [
+            if (lowerQuery.includes('прокрастин') || lowerQuery.includes('откладыва') || lowerQuery.includes('продуктивн') || lowerQuery.includes('лень') ||
+                lowerQuery.includes('procrastin') || lowerQuery.includes('productiv') || lowerQuery.includes('lazy') || lowerQuery.includes('focus')) {
+                return isRussian ? [
                     {
-                        title: "Atomic Habits",
+                        title: "Атомные привычки",
                         author: "Джеймс Клир",
                         reason: "Системный подход к борьбе с прокрастинацией через микропривычки. Учит создавать окружение которое само подталкивает к действиям.",
                         relevance: 95
@@ -1026,12 +1217,32 @@
                         reason: "Научные основы самоконтроля. Объясняет почему мы откладываем и как тренировать силу воли как мышцу.",
                         relevance: 88
                     }
+                ] : [
+                    {
+                        title: "Atomic Habits",
+                        author: "James Clear",
+                        reason: "Systematic approach to beating procrastination through tiny habits. Create an environment that naturally drives action.",
+                        relevance: 95
+                    },
+                    {
+                        title: "Eat That Frog!",
+                        author: "Brian Tracy",
+                        reason: "21 proven techniques to overcome procrastination. Start your day by tackling the hardest task first.",
+                        relevance: 92
+                    },
+                    {
+                        title: "The Willpower Instinct",
+                        author: "Kelly McGonigal",
+                        reason: "Science of self-control. Understand why we procrastinate and train willpower like a muscle.",
+                        relevance: 88
+                    }
                 ];
             }
             
             // Money & Finance
-            if (lowerQuery.includes('деньг') || lowerQuery.includes('финанс') || lowerQuery.includes('богат') || lowerQuery.includes('инвест')) {
-                return [
+            if (lowerQuery.includes('деньг') || lowerQuery.includes('финанс') || lowerQuery.includes('богат') || lowerQuery.includes('инвест') ||
+                lowerQuery.includes('money') || lowerQuery.includes('financ') || lowerQuery.includes('wealth') || lowerQuery.includes('invest')) {
+                return isRussian ? [
                     {
                         title: "Богатый папа, бедный папа",
                         author: "Роберт Кийосаки",
@@ -1050,107 +1261,30 @@
                         reason: "Объясняет почему финансовые решения - это не математика а психология. Учит правильному отношению к деньгам.",
                         relevance: 87
                     }
-                ];
-            }
-            
-            // Relationships & Communication
-            if (lowerQuery.includes('отношени') || lowerQuery.includes('общени') || lowerQuery.includes('партнер') || lowerQuery.includes('любов')) {
-                return [
+                ] : [
                     {
-                        title: "Пять языков любви",
-                        author: "Гэри Чепмен",
-                        reason: "Помогает понять как люди выражают и принимают любовь по-разному. Практические инструменты для улучшения близких отношений.",
-                        relevance: 93
-                    },
-                    {
-                        title: "Искусство любить",
-                        author: "Эрих Фромм",
-                        reason: "Классика о любви как навыке. Любовь - это не падение, а выбор и практика.",
-                        relevance: 90
-                    },
-                    {
-                        title: "Как завоевывать друзей",
-                        author: "Дейл Карнеги",
-                        reason: "Вечные принципы общения. Учит искренне интересоваться людьми и строить настоящие связи.",
-                        relevance: 86
-                    }
-                ];
-            }
-            
-            // Confidence & Self-esteem
-            if (lowerQuery.includes('уверен') || lowerQuery.includes('самооценк') || lowerQuery.includes('страх') || lowerQuery.includes('тревож')) {
-                return [
-                    {
-                        title: "Как перестать беспокоиться",
-                        author: "Дейл Карнеги",
-                        reason: "Проверенные методы борьбы с тревожностью и страхами. Учит жить здесь и сейчас.",
-                        relevance: 92
-                    },
-                    {
-                        title: "Дары несовершенства",
-                        author: "Брене Браун",
-                        reason: "О принятии себя и уязвимости как источнике силы. Помогает строить аутентичную уверенность.",
-                        relevance: 89
-                    },
-                    {
-                        title: "Психология харизмы",
-                        author: "Оливия Фокс Кабейн",
-                        reason: "Конкретные техники развития харизмы и присутствия. Харизма - это навык который можно тренировать.",
-                        relevance: 85
-                    }
-                ];
-            }
-            
-            // Health & Wellness
-            if (lowerQuery.includes('здоров') || lowerQuery.includes('сон') || lowerQuery.includes('питан') || lowerQuery.includes('вес')) {
-                return [
-                    {
-                        title: "Зачем мы спим",
-                        author: "Мэттью Уокер",
-                        reason: "Революционное исследование о сне. Показывает как сон влияет на здоровье, память и продуктивность.",
+                        title: "Rich Dad Poor Dad",
+                        author: "Robert Kiyosaki",
+                        reason: "Changes money mindset from 'work for money' to 'money works for you'. Learn to distinguish assets from liabilities.",
                         relevance: 94
                     },
                     {
-                        title: "Кишка всему голова",
-                        author: "Джулия Эндерс",
-                        reason: "Увлекательно о том как кишечник управляет настроением и здоровьем. Практические советы по питанию.",
-                        relevance: 88
+                        title: "The Richest Man in Babylon",
+                        author: "George S. Clason",
+                        reason: "Timeless financial principles through parables. The 10% savings rule and wise investing strategies.",
+                        relevance: 90
                     },
                     {
-                        title: "Быть в форме",
-                        author: "Бен Гринфилд",
-                        reason: "Научный подход к фитнесу и здоровью. Оптимизация тела и мозга на основе биохакинга.",
-                        relevance: 85
+                        title: "The Psychology of Money",
+                        author: "Morgan Housel",
+                        reason: "Financial decisions are psychology, not math. Develop the right relationship with money.",
+                        relevance: 87
                     }
                 ];
             }
             
-            // Career & Leadership
-            if (lowerQuery.includes('карьер') || lowerQuery.includes('работ') || lowerQuery.includes('лидер') || lowerQuery.includes('управлен')) {
-                return [
-                    {
-                        title: "От хорошего к великому",
-                        author: "Джим Коллинз",
-                        reason: "Исследование компаний-лидеров. Принципы которые работают на всех уровнях карьеры.",
-                        relevance: 91
-                    },
-                    {
-                        title: "Экстремальное владение",
-                        author: "Джоко Виллинк",
-                        reason: "Лидерство от Navy SEALs. Принятие полной ответственности как основа успеха.",
-                        relevance: 88
-                    },
-                    {
-                        title: "Лидер и племя",
-                        author: "Дэвид Логан",
-                        reason: "5 уровней корпоративной культуры. Как развивать команду и подниматься по карьерной лестнице.",
-                        relevance: 85
-                    }
-                ];
-            }
-            
-            // Default - Universal books (only if nothing else matches)
-            return [
+            // Default - Universal books
+            return isRussian ? [
                 {
                     title: "Думай медленно... Решай быстро",
                     author: "Даниэль Канеман",
@@ -1169,16 +1303,36 @@
                     reason: "Универсальный подход к изменениям. Подходит когда непонятно с чего начать работу над целью.",
                     relevance: 78
                 }
+            ] : [
+                {
+                    title: "Thinking, Fast and Slow",
+                    author: "Daniel Kahneman",
+                    reason: "Understand how thinking works. Avoid cognitive errors in decision-making. Universally useful.",
+                    relevance: 82
+                },
+                {
+                    title: "Flow",
+                    author: "Mihaly Csikszentmihalyi",
+                    reason: "About peak productivity and happiness. Find flow state in any activity.",
+                    relevance: 80
+                },
+                {
+                    title: "Atomic Habits",
+                    author: "James Clear",
+                    reason: "Universal approach to change. Perfect when unsure where to start on your goal.",
+                    relevance: 78
+                }
             ];
         }
 
         // Show search results
         function showSearchResults(books, query) {
             const searchResults = document.getElementById('searchResults');
+            const t = translations[currentLang];
             
             // Update header
-            document.querySelector('.search-results-title').textContent = 'Нашли книги для вас';
-            document.querySelector('.search-results-subtitle').textContent = `На основе вашего запроса: "${query}"`;
+            document.querySelector('.search-results-title').textContent = t.resultsTitle;
+            document.querySelector('.search-results-subtitle').textContent = `${t.resultsSubtitle} "${query}"`;
 
             // Create book cards
             const container = document.querySelector('.book-cards-container');
@@ -1193,7 +1347,7 @@
                     </div>
                     <div class="book-card-reason">${book.reason}</div>
                     <button class="book-select-btn" onclick="event.stopPropagation(); selectBookFromSearch('${book.title.replace(/'/g, "\\'")}')">
-                        Выбрать эту книгу →
+                        ${t.selectBookBtn}
                     </button>
                 </div>
             `).join('');
@@ -1307,7 +1461,10 @@
                 headers: {
                     'Content-Type': 'application/json'
                 },
-                body: JSON.stringify({ bookTitle })
+                body: JSON.stringify({ 
+                    bookTitle,
+                    language: currentLang 
+                })
             });
 
             if (!response.ok) {
@@ -1394,7 +1551,8 @@
                 },
                 body: JSON.stringify({
                     bookTitle,
-                    userContext
+                    userContext,
+                    language: currentLang
                 })
             });
 
