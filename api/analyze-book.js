@@ -21,12 +21,14 @@ export default async function handler(req, res) {
 
   try {
     // Получаем данные от клиента
-    const { bookTitle } = req.body;
+    const { bookTitle, language = 'en' } = req.body;
 
     // Валидация
     if (!bookTitle) {
       return res.status(400).json({ error: 'bookTitle обязателен' });
     }
+
+    console.log('📚 Analyzing book:', bookTitle, 'Language:', language);
 
     // API ключ из переменных окружения
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -36,8 +38,10 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Ошибка конфигурации сервера' });
     }
 
+    const isRussian = language === 'ru';
+
     // Формируем промпт для анализа книги
-    const prompt = `Ты эксперт по книгам саморазвития и бизнес-литературы. Твоя задача - помочь людям превратить книгу в действия.
+    const prompt = isRussian ? `Ты эксперт по книгам саморазвития и бизнес-литературы. Твоя задача - помочь людям превратить книгу в действия.
 
 КНИГА: "${bookTitle}"
 
@@ -68,7 +72,38 @@ export default async function handler(req, res) {
 - Ответ ТОЛЬКО JSON, без пояснений, без markdown
 - Пиши на русском языке
 
-Если не знаешь эту книгу - создай правдоподобный контент на основе названия.`;
+Если не знаешь эту книгу - создай правдоподобный контент на основе названия.` : `You are an expert in self-development and business literature. Your task is to help people transform books into action.
+
+BOOK: "${bookTitle}"
+
+Create a JSON with three fields:
+
+1. "title": full book title
+2. "author": book author (first and last name)
+3. "description": brief book description in one sentence (start with "This book is about...")
+4. "popularQueries": array of 4 popular queries/problems this book solves
+
+FORMAT (STRICTLY JSON WITHOUT MARKDOWN):
+
+{
+  "title": "[Full book title]",
+  "author": "[First Last name of author]",
+  "description": "This book is about [main topic in 5-10 words]",
+  "popularQueries": [
+    "I want to [specific goal related to book]",
+    "Stop/start [specific habit]",
+    "[Problem the book solves]",
+    "[Another typical reader problem]"
+  ]
+}
+
+REQUIREMENTS:
+- Title and Author must be accurate (if you know the book)
+- Popular queries must be specific and personal (as if the person wrote them)
+- Response ONLY JSON, no explanations, no markdown
+- Write in English
+
+If you don't know this book - create plausible content based on the title.`;
 
     // Запрос к Groq API
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
