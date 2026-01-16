@@ -21,12 +21,14 @@ export default async function handler(req, res) {
 
   try {
     // Получаем данные от клиента
-    const { bookTitle, userContext } = req.body;
+    const { bookTitle, userContext, language = 'en' } = req.body;
 
     // Валидация
     if (!bookTitle || !userContext) {
       return res.status(400).json({ error: 'bookTitle и userContext обязательны' });
     }
+
+    console.log('📝 Generating plan for:', bookTitle, 'Language:', language);
 
     // API ключ из переменных окружения
     const GROQ_API_KEY = process.env.GROQ_API_KEY;
@@ -36,8 +38,10 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: 'Ошибка конфигурации сервера' });
     }
 
+    const isRussian = language === 'ru';
+
     // Формируем промпт для генерации плана
-    const prompt = `Ты эксперт по превращению книжных знаний в конкретные действия. Твоя задача - трансформировать идеи из книги в немедленные, практические шаги.
+    const prompt = isRussian ? `Ты эксперт по превращению книжных знаний в конкретные действия. Твоя задача - трансформировать идеи из книги в немедленные, практические шаги.
 
 ЗАДАЧА:
 - Книга: "${bookTitle}"
@@ -101,7 +105,71 @@ export default async function handler(req, res) {
 - Используй простой, понятный язык
 - Пиши на русском языке
 - СТРОГО следуй формату выше
-- Общий ответ должен быть 300-500 слов`;
+- Общий ответ должен быть 300-500 слов` : `You are an expert at turning book knowledge into concrete actions. Your task is to transform book ideas into immediate, practical steps.
+
+TASK:
+- Book: "${bookTitle}"
+- User context: "${userContext}"
+
+PROCESS:
+1. Identify the book and author
+2. Extract 5 KEY IDEAS from the book (most important concepts)
+3. Create 3-5 SPECIFIC ACTIONS, personalized to user's context
+   - Each action must be simple, achievable, and specific
+   - Explain WHY this action matters (referencing book ideas)
+   - Make actions sequential - from simple to complex
+
+OUTPUT FORMAT (STRICT):
+
+[Book Title] - [Author]
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+KEY IDEAS FROM THE BOOK:
+
+1. [First key idea from the book - 1-2 sentences]
+
+2. [Second key idea from the book - 1-2 sentences]
+
+3. [Third key idea from the book - 1-2 sentences]
+
+4. [Fourth key idea from the book - 1-2 sentences]
+
+5. [Fifth key idea from the book - 1-2 sentences]
+
+━━━━━━━━━━━━━━━━━━━━━━━
+
+CONCRETE ACTIONS:
+
+Action 1:
+[Specific, concrete action]
+Why: [Explanation referencing book ideas]
+
+Action 2:
+[Specific, concrete action]
+Why: [Explanation referencing book ideas]
+
+Action 3:
+[Specific, concrete action]
+Why: [Explanation referencing book ideas]
+
+Action 4:
+[Specific, concrete action]
+Why: [Explanation referencing book ideas]
+
+Action 5:
+[Specific, concrete action]
+Why: [Explanation referencing book ideas]
+
+RULES:
+- Be MAXIMALLY SPECIFIC in actions (not "exercise more", but "tomorrow at 7am do 10 pushups")
+- Each action should take 5-30 minutes to complete
+- Actions must be personalized to context: "${userContext}"
+- Order actions by difficulty: from simplest to more complex
+- Use simple, clear language
+- Write in English
+- STRICTLY follow the format above
+- Total response should be 300-500 words`;
 
     // Запрос к Groq API
     const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
@@ -134,6 +202,8 @@ export default async function handler(req, res) {
 
     const data = await response.json();
     const plan = data.choices[0].message.content;
+
+    console.log('✅ Plan generated successfully');
 
     // Возвращаем результат клиенту
     return res.status(200).json({ plan });
