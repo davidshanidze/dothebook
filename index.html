@@ -1337,14 +1337,20 @@
         // Show search results
         function showSearchResults(books, query) {
             const searchResults = document.getElementById('searchResults');
+            if (!searchResults) return;
+            
             const t = translations[currentLang];
             
-            // Update header
-            document.querySelector('.search-results-title').textContent = t.resultsTitle;
-            document.querySelector('.search-results-subtitle').textContent = `${t.resultsSubtitle} "${query}"`;
+            // Update header safely
+            const titleEl = document.querySelector('.search-results-title');
+            const subtitleEl = document.querySelector('.search-results-subtitle');
+            if (titleEl) titleEl.textContent = t.resultsTitle;
+            if (subtitleEl) subtitleEl.textContent = `${t.resultsSubtitle} "${query}"`;
 
             // Create book cards
             const container = document.querySelector('.book-cards-container');
+            if (!container) return;
+            
             container.innerHTML = books.map(book => `
                 <div class="book-card" onclick="selectBookFromSearch('${book.title.replace(/'/g, "\\'")}')">
                     <div class="book-card-header">
@@ -1442,25 +1448,32 @@
             // Call AI to analyze the book
             const bookInfo = await getBookInfo(bookTitle);
             
-            // Display title without emoji
-            document.getElementById('bookTitle').textContent = bookInfo.title || bookTitle;
+            // Display title without emoji (safely)
+            const titleEl = document.getElementById('bookTitle');
+            if (titleEl) titleEl.textContent = bookInfo.title || bookTitle;
             
-            // Display author
+            // Display author (safely)
             if (bookInfo.author) {
-                document.getElementById('bookAuthor').textContent = bookInfo.author;
+                const authorEl = document.getElementById('bookAuthor');
+                if (authorEl) authorEl.textContent = bookInfo.author;
             }
             
-            document.getElementById('bookDescription').textContent = bookInfo.description;
+            // Display description (safely)
+            const descEl = document.getElementById('bookDescription');
+            if (descEl) descEl.textContent = bookInfo.description;
 
+            // Display queries (safely)
             const queriesContainer = document.getElementById('popularQueries');
-            queriesContainer.innerHTML = '';
-            bookInfo.popularQueries.forEach(query => {
-                const btn = document.createElement('button');
-                btn.className = 'query-btn';
-                btn.textContent = `• ${query}`;
-                btn.onclick = () => selectQuery(btn, query);
-                queriesContainer.appendChild(btn);
-            });
+            if (queriesContainer && bookInfo.popularQueries) {
+                queriesContainer.innerHTML = '';
+                bookInfo.popularQueries.forEach(query => {
+                    const btn = document.createElement('button');
+                    btn.className = 'query-btn';
+                    btn.textContent = `• ${query}`;
+                    btn.onclick = () => selectQuery(btn, query);
+                    queriesContainer.appendChild(btn);
+                });
+            }
         }
 
         // Real AI analysis (replaces mock data)
