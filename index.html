@@ -940,22 +940,33 @@
 
             const t = translations[lang];
 
-            // Update UI elements
-            document.getElementById('heroTitle').textContent = t.heroTitle;
-            document.getElementById('heroSubtitle').textContent = t.heroSubtitle;
-            document.querySelector('.book-input-label').textContent = t.bookInputLabel;
-            document.getElementById('bookInput').placeholder = t.bookInputPlaceholder;
-            document.getElementById('analyzeBtn').textContent = t.analyzeBtn;
-            document.querySelector('.divider-text').textContent = t.dividerOr;
-            document.querySelector('.search-title').textContent = t.searchTitle;
-            document.querySelector('.search-subtitle').textContent = t.searchSubtitle;
-            document.getElementById('goalInput').placeholder = t.goalInputPlaceholder;
-            document.getElementById('findBookBtn').textContent = t.findBookBtn;
-            document.querySelector('.analyzing-text').textContent = t.analyzingText;
-            document.querySelector('.analyzing-subtext').textContent = t.analyzingSubtext;
-            document.querySelector('.loading-text').textContent = t.loadingText;
-            document.getElementById('backToSearchBtn').textContent = t.backBtn;
-            document.querySelector('.footer').textContent = t.footer;
+            // Helper function to safely update element
+            const updateElement = (selector, text) => {
+                const el = document.querySelector(selector);
+                if (el) el.textContent = text;
+            };
+
+            const updatePlaceholder = (selector, text) => {
+                const el = document.querySelector(selector);
+                if (el) el.placeholder = text;
+            };
+
+            // Update UI elements safely
+            updateElement('#heroTitle', t.heroTitle);
+            updateElement('#heroSubtitle', t.heroSubtitle);
+            updateElement('.book-input-label', t.bookInputLabel);
+            updatePlaceholder('#bookInput', t.bookInputPlaceholder);
+            updateElement('#analyzeBtn', t.analyzeBtn);
+            updateElement('.divider-text', t.dividerOr);
+            updateElement('.search-title', t.searchTitle);
+            updateElement('.search-subtitle', t.searchSubtitle);
+            updatePlaceholder('#goalInput', t.goalInputPlaceholder);
+            updateElement('#findBookBtn', t.findBookBtn);
+            updateElement('.analyzing-text', t.analyzingText);
+            updateElement('.analyzing-subtext', t.analyzingSubtext);
+            updateElement('.loading-text', t.loadingText);
+            updateElement('#backToSearchBtn', t.backBtn);
+            updateElement('.footer', t.footer);
 
             // Update active state
             document.querySelectorAll('.lang-btn').forEach(btn => {
@@ -963,10 +974,8 @@
             });
 
             // Update step 2 elements if they exist
-            const generateBtn = document.getElementById('generateBtn');
-            const backBtn = document.getElementById('backBtn');
-            if (generateBtn) generateBtn.textContent = t.generatePlanBtn;
-            if (backBtn) backBtn.textContent = t.backToBookBtn;
+            updateElement('#generateBtn', t.generatePlanBtn);
+            updateElement('#backBtn', t.backToBookBtn);
         }
 
         // Language switcher event listeners
