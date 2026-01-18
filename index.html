@@ -1586,109 +1586,103 @@
             return data.plan;
         }
 
-        // Show result with beautiful structured layout
-        function showResult(content) {
-            const resultSection = document.getElementById('resultSection');
-            resultSection.classList.remove('hidden');
-            
-            // Parse the content
-            const lines = content.split('\n');
-            let html = '';
-            
-            // Extract book title and author
-            const titleLine = lines[0];
-            html += `<div class="result-header fade-in-item">`;
-            html += `<div class="result-title">${titleLine}</div>`;
-            html += `</div>`;
-            
-            let inIdeas = false;
-            let inActions = false;
-            let currentAction = null;
-            let delay = 1;
-            
-            lines.forEach((line, index) => {
-                if (index === 0) return; // Skip title
-                
-                const trimmed = line.trim();
-                
-                // Section headers
-                if (trimmed.includes('ГЛАВНЫЕ ИДЕИ')) {
-                    inIdeas = true;
-                    inActions = false;
-                    html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-                    html += `<div class="result-section-title">💡 Главные идеи книги</div>`;
-                    delay++;
-                    return;
-                }
-                
-                if (trimmed.includes('КОНКРЕТНЫЕ ДЕЙСТВИЯ')) {
-                    if (inIdeas) html += `</div>`; // Close ideas section
-                    inIdeas = false;
-                    inActions = true;
-                    html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-                    html += `<div class="result-section-title">🎯 Конкретные действия</div>`;
-                    delay++;
-                    return;
-                }
-                
-                // Skip separator lines
-                if (trimmed.startsWith('━') || trimmed === '') return;
-                
-                // Parse ideas (numbered list)
-                if (inIdeas && /^\d+\./.test(trimmed)) {
-                    const ideaText = trimmed.replace(/^\d+\.\s*/, '');
-                    const ideaNum = trimmed.match(/^(\d+)\./)[1];
-                    html += `<div class="idea-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-                    html += `<span class="idea-number">${ideaNum}.</span>${ideaText}`;
-                    html += `</div>`;
-                    delay++;
-                }
-                
-                // Parse actions
-                if (inActions) {
-                    if (trimmed.startsWith('Действие')) {
-                        // Close previous action if exists
-                        if (currentAction) {
-                            html += `</div>`;
-                        }
-                        
-                        // Start new action
-                        html += `<div class="action-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-                        html += `<div class="action-title">${trimmed}</div>`;
-                        currentAction = { title: trimmed, description: '', why: '' };
-                        delay++;
-                    } else if (trimmed.startsWith('Зачем:')) {
-                        const why = trimmed.replace('Зачем:', '').trim();
-                        html += `<div class="action-why">💡 ${why}</div>`;
-                    } else if (trimmed && !trimmed.startsWith('━')) {
-                        html += `<div class="action-description">${trimmed}</div>`;
-                    }
-                }
-            });
-            
-            // Close last action if exists
-            if (currentAction) html += `</div>`;
-            
-            // Close sections
-            if (inActions) html += `</div>`;
-            
-            // Add navigation buttons
-            html += `<div class="result-actions fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
-            html += `<button onclick="downloadTXT()" class="btn">📥 Скачать TXT</button>`;
-            html += `<button onclick="tryAnotherBook()" class="btn btn-secondary">📚 Другая книга</button>`;
-            html += `<button onclick="createNewPlan()" class="btn btn-secondary">🎯 Новый план</button>`;
-            html += `</div>`;
-            
-            resultSection.innerHTML = html;
-            
-            // Store content for PDF generation
-            window.currentPlanContent = content;
-            
-            // Scroll to result
-            setTimeout(() => {
-                resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 300);
+// Show result with beautiful structured layout
+function showResult(content) {
+    const resultSection = document.getElementById('resultSection');
+    resultSection.classList.remove('hidden');
+    
+    const lines = content.split('\n');
+    let html = '';
+    
+    const titleLine = lines[0];
+    html += `<div class="result-header fade-in-item">`;
+    html += `<div class="result-title">${titleLine}</div>`;
+    html += `</div>`;
+    
+    let inIdeas = false;
+    let inActions = false;
+    let currentAction = null;
+    let delay = 1;
+    
+    // ⭐ ВОТ ГЛАВНОЕ ИЗМЕНЕНИЕ - добавляем массивы с вариантами на обоих языках
+    const ideasHeaders = ['ГЛАВНЫЕ ИДЕИ', 'KEY IDEAS', 'MAIN IDEAS'];
+    const actionsHeaders = ['КОНКРЕТНЫЕ ДЕЙСТВИЯ', 'CONCRETE ACTIONS', 'ACTION STEPS', 'ACTIONS'];
+    const actionPrefixes = ['Действие', 'Action'];
+    const whyPrefixes = ['Зачем:', 'Why:'];
+    
+    lines.forEach((line, index) => {
+        if (index === 0) return;
+        
+        const trimmed = line.trim();
+        
+        // ⭐ ЗДЕСЬ используем массивы вместо одного варианта
+        if (ideasHeaders.some(h => trimmed.includes(h))) {
+            inIdeas = true;
+            inActions = false;
+            html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+            const title = currentLang === 'en' ? 'Key Ideas from the Book' : 'Главные идеи книги';
+            html += `<div class="result-section-title">💡 ${title}</div>`;
+            delay++;
+            return;
         }
+        
+        if (actionsHeaders.some(h => trimmed.includes(h))) {
+            if (inIdeas) html += `</div>`;
+            inIdeas = false;
+            inActions = true;
+            html += `<div class="result-section fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+            const title = currentLang === 'en' ? 'Concrete Actions' : 'Конкретные действия';
+            html += `<div class="result-section-title">🎯 ${title}</div>`;
+            delay++;
+            return;
+        }
+        
+        if (trimmed.startsWith('━') || trimmed === '') return;
+        
+        if (inIdeas && /^\d+\./.test(trimmed)) {
+            const ideaText = trimmed.replace(/^\d+\.\s*/, '');
+            const ideaNum = trimmed.match(/^(\d+)\./)[1];
+            html += `<div class="idea-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+            html += `<span class="idea-number">${ideaNum}.</span>${ideaText}`;
+            html += `</div>`;
+            delay++;
+        }
+        
+        // ⭐ И ЗДЕСЬ используем массивы
+        if (inActions) {
+            if (actionPrefixes.some(p => trimmed.startsWith(p))) {
+                if (currentAction) html += `</div>`;
+                html += `<div class="action-item fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+                html += `<div class="action-title">${trimmed}</div>`;
+                currentAction = { title: trimmed };
+                delay++;
+            } else if (whyPrefixes.some(p => trimmed.startsWith(p))) {
+                const why = whyPrefixes.reduce((text, prefix) => 
+                    text.replace(prefix, ''), trimmed).trim();
+                html += `<div class="action-why">💡 ${why}</div>`;
+            } else if (trimmed && !trimmed.startsWith('━')) {
+                html += `<div class="action-description">${trimmed}</div>`;
+            }
+        }
+    });
+    
+    if (currentAction) html += `</div>`;
+    if (inActions) html += `</div>`;
+    
+    const t = translations[currentLang];
+    html += `<div class="result-actions fade-in-item" style="animation-delay: ${delay * 0.1}s">`;
+    html += `<button onclick="downloadTXT()" class="btn">${t.downloadBtn}</button>`;
+    html += `<button onclick="tryAnotherBook()" class="btn btn-secondary">${t.anotherBookBtn}</button>`;
+    html += `<button onclick="createNewPlan()" class="btn btn-secondary">${t.newPlanBtn}</button>`;
+    html += `</div>`;
+    
+    resultSection.innerHTML = html;
+    window.currentPlanContent = content;
+    
+    setTimeout(() => {
+        resultSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 300);
+}
         
         // Download TXT function
         function downloadTXT() {
