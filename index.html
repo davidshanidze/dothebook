@@ -808,11 +808,11 @@
                 <div class="book-description" id="bookDescription"></div>
             </div>
 
-            <div class="section-title">Выберите один из популярных запросов:</div>
+            <div class="section-title" id="queriesTitle">Choose one of popular queries:</div>
             <div class="popular-queries" id="popularQueries"></div>
 
             <div class="custom-input-section">
-                <div class="section-title">Или опишите свою ситуацию:</div>
+                <div class="section-title" id="customTitle">Or describe your situation:</div>
                 <textarea 
                     id="customContext"
                     class="custom-input"
@@ -835,19 +835,19 @@
         <div id="progressSection" class="card progress-container">
             <div class="progress-steps">
                 <div class="progress-step" id="step-analyze">
-                    <div class="progress-text">🔍 Анализирую книгу...</div>
+                    <div class="progress-text" id="progressText1">🔍 Analyzing the book...</div>
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar-fill" id="bar-analyze"></div>
                     </div>
                 </div>
                 <div class="progress-step" id="step-ideas">
-                    <div class="progress-text">💡 Извлекаю главные идеи...</div>
+                    <div class="progress-text" id="progressText2">💡 Extracting key ideas...</div>
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar-fill" id="bar-ideas"></div>
                     </div>
                 </div>
                 <div class="progress-step" id="step-plan">
-                    <div class="progress-text">🎯 Создаю план под тебя...</div>
+                    <div class="progress-text" id="progressText3">🎯 Creating your plan...</div>
                     <div class="progress-bar-wrapper">
                         <div class="progress-bar-fill" id="bar-plan"></div>
                     </div>
@@ -976,6 +976,18 @@
             // Update step 2 elements if they exist
             updateElement('#generateBtn', t.generatePlanBtn);
             updateElement('#backBtn', t.backToBookBtn);
+
+            // Update step 2 elements if they exist
+            updateElement('#generateBtn', t.generatePlanBtn);
+            updateElement('#backBtn', t.backToBookBtn);
+            updateElement('#queriesTitle', t.popularQueriesTitle);
+            updateElement('#customTitle', t.customContextTitle);
+            updatePlaceholder('#customContext', t.customContextPlaceholder);
+
+            // Update progress texts
+            updateElement('#progressText1', t.progressAnalyze);
+            updateElement('#progressText2', t.progressIdeas);
+            updateElement('#progressText3', t.progressPlan);
         }
 
         // Language switcher event listeners
